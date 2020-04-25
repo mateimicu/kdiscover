@@ -1,3 +1,4 @@
+// Package internal provides wrapper for creating aws sessions
 package internal
 
 import (

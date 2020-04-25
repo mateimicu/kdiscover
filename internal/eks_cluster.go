@@ -1,3 +1,4 @@
+// Package internal provides function for working with EKS cluseters
 package internal
 
 import (
@@ -104,7 +105,7 @@ func GetEKSClusters(regions []string) []Cluster {
 	var clusters []Cluster = make([]Cluster, 0, len(regions))
 
 	var wg sync.WaitGroup
-	ch := make(chan Cluster, 0)
+	ch := make(chan Cluster)
 
 	for _, region := range regions {
 		log.WithFields(log.Fields{
@@ -126,7 +127,7 @@ Loop:
 		select {
 		case cluster := <-ch:
 			clusters = append(clusters, cluster)
-		case _ = <-done:
+		case <-done:
 			break Loop
 		}
 	}
