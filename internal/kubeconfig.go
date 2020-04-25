@@ -1,3 +1,4 @@
+// Package internal provides function to update kubeconfigs
 package internal
 
 import (
@@ -68,7 +69,7 @@ func getConfigContext(name string) *api.Context {
 }
 
 func getAuthType() int {
-	// Acording to the docs the first version that supports this is 1.18.17
+	// According to the docs the first version that supports this is 1.18.17
 	// See: https://docs.aws.amazon.com/eks/latest/userguide/create-kubeconfig.html
 	// but looking at the source code the get token is present from 1.16.266
 	// See: https://github.com/aws/aws-cli/commits/develop/awscli/customizations/eks/get_token.py
@@ -83,7 +84,7 @@ func getAuthType() int {
 // UpdateKubeconfig will parse the given path as a valid kubeconfig file and
 // will try to append all the clusters. It requires a name generator for cluster name
 // generation
-func UpdateKubeconfig(clusters []Cluster, kubeconfigPath string, gen ContextNameGenerator) {
+func UpdateKubeconfig(clusters []Cluster, kubeconfigPath string, gen ContextNameGenerator) error {
 	authType := getAuthType()
 	cfg := clientcmd.GetConfigFromFileOrDie(kubeconfigPath)
 
@@ -102,7 +103,8 @@ func UpdateKubeconfig(clusters []Cluster, kubeconfigPath string, gen ContextName
 		cfg.Contexts[ctxName] = getConfigContext(key)
 	}
 
-	clientcmd.WriteToFile(*cfg, kubeconfigPath)
+	err := clientcmd.WriteToFile(*cfg, kubeconfigPath)
+	return err
 }
 
 func getAWSCLIversion() *semver.Version {
@@ -113,10 +115,12 @@ func getAWSCLIversion() *semver.Version {
 		log.Warn("Can't get aws cli tool version")
 		return v
 	}
-	r := regexp.MustCompile("aws-cli\\/(?P<verison>[0-9]+\\.[0-9]+\\.[0-9]+)")
+	r := regexp.MustCompile(`aws-cli\/(?P<version>[0-9]+\.[0-9]+\.[0-9]+)`)
 	if match := r.FindStringSubmatch(string(out)); len(match) != 0 {
 		v, _ = semver.NewVersion(match[1])
-
+		log.WithFields(log.Fields{
+			"version": v,
+		}).Info("Found AWS CLI version")
 	}
 	return v
 }

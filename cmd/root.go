@@ -1,3 +1,4 @@
+// Package cmd offers CLI functionality
 package cmd
 
 import (
@@ -54,7 +55,8 @@ It will try to upgrade the kube-config for each cluster.`,
 	}
 )
 
-func init() {
+// Execute will create the tree of commands and will start parsing and execution
+func Execute() {
 	rootCmd.PersistentFlags().BoolVar(&debug, "debug", false, "set log level to debug")
 
 	rootCmd.PersistentFlags().StringSliceVar(
@@ -63,11 +65,11 @@ func init() {
 		[]string{"aws"},
 		fmt.Sprintf("In what partitions to search for clusters. Supported %v", internal.AllowedParitions()))
 
-	rootCmd.PersistentFlags().StringVar(&kubeconfigPath, "kubeconfig-path", internal.GetDefaultKubeconfigPath(), "Path to the kubeconfig to work with")
-}
-
-// Execute will create the tree of commands and will start parsing and execution
-func Execute() {
+	rootCmd.PersistentFlags().StringVar(
+		&kubeconfigPath,
+		"kubeconfig-path",
+		internal.GetDefaultKubeconfigPath(),
+		"Path to the kubeconfig to work with")
 
 	rootCmd.AddCommand(newListCommand())
 	rootCmd.AddCommand(newUpdateCommand())
