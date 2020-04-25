@@ -21,7 +21,7 @@ func TestContains(t *testing.T) {
 		t.Run(testname, func(t *testing.T) {
 			result := contains(tt.key, tt.list)
 			if result != tt.expected {
-				t.Errorf("contains of %v in %v is incorect, got: %v, want: %v.", tt.key, tt.list, result, tt.expected)
+				t.Errorf("contains of %v in %v is incorrect, got: %v, want: %v.", tt.key, tt.list, result, tt.expected)
 			}
 		})
 	}

@@ -1,3 +1,4 @@
+// Package cmd offers CLI functionality
 package cmd
 
 import (
@@ -22,7 +23,7 @@ func newListCommand() *cobra.Command {
 			tw.AppendHeader(table.Row{"Cluster Name", "Region", "Status", "Exported Locally"})
 			rows := []table.Row{}
 			for _, cls := range remoteEKSClusters {
-				rows = append(rows, table.Row{cls.Name, cls.Region, cls.Status, getExportedString(&cls, kubeconfigPath)})
+				rows = append(rows, table.Row{cls.Name, cls.Region, cls.Status, getExportedString(cls, kubeconfigPath)})
 			}
 			tw.AppendRows(rows)
 
@@ -50,7 +51,7 @@ func newListCommand() *cobra.Command {
 	return listCommand
 }
 
-func getExportedString(cls *internal.Cluster, kubeconfigPath string) string {
+func getExportedString(cls internal.Cluster, kubeconfigPath string) string {
 	if cls.IsExported(kubeconfigPath) {
 		return "Yes"
 	}

@@ -1,3 +1,4 @@
+// Package cmd offers CLI functionality
 package cmd
 
 import (
@@ -7,6 +8,7 @@ import (
 	"io"
 	"os"
 	"path"
+	"path/filepath"
 
 	"github.com/mateimicu/kdiscover/internal"
 	log "github.com/sirupsen/logrus"
@@ -35,13 +37,25 @@ func newUpdateCommand() *cobra.Command {
 					}).Info("Can't generate backup file name ")
 				}
 				fmt.Printf("Backup kubeconfig to %v\n", bName)
-				copy(kubeconfigPath, bName)
+				err = copy(kubeconfigPath, bName)
+				if err != nil {
+					fmt.Println(err.Error())
+					return
+				}
 			}
-			internal.UpdateKubeconfig(remoteEKSClusters, kubeconfigPath, contextName{templateValue: alias})
+			err := internal.UpdateKubeconfig(remoteEKSClusters, kubeconfigPath, contextName{templateValue: alias})
+			if err != nil {
+				fmt.Println(err.Error())
+				return
+			}
 		},
 	}
 	updateCommand.Flags().BoolVar(&backupKubeconfig, "backup-kubeconfig", true, "Backup cubeconfig before update")
-	updateCommand.Flags().StringVar(&alias, "context-name-alias", "{{.Name}}", "Template for the context name. Has acces to Cluster type")
+	updateCommand.Flags().StringVar(
+		&alias,
+		"context-name-alias",
+		"{{.Name}}",
+		"Template for the context name. Has acces to Cluster type")
 
 	return updateCommand
 }
@@ -73,7 +87,7 @@ func copy(src, dst string) error {
 		return fmt.Errorf("%s is not a regular file", src)
 	}
 
-	source, err := os.Open(src)
+	source, err := os.Open(filepath.Clean(src))
 	if err != nil {
 		return err
 	}
@@ -91,7 +105,7 @@ func copy(src, dst string) error {
 	defer destination.Close()
 
 	if err != nil {
-		panic(err)
+		return err
 	}
 
 	buf := make([]byte, 1000000)
@@ -108,7 +122,7 @@ func copy(src, dst string) error {
 			return err
 		}
 	}
-	return err
+	return nil
 }
 
 func generateBackupName(origin string) (string, error) {
@@ -123,7 +137,7 @@ func generateBackupName(origin string) (string, error) {
 	oDir := path.Dir(origin)
 	for {
 		if fileExists(path.Join(oDir, oName)) {
-			oName = oName + ".bak"
+			oName += ".bak"
 		} else {
 			break
 		}

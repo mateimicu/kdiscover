@@ -21,7 +21,6 @@ linters:
     - gosimple
     - govet
     - ineffassign
-    - interfacer
     - lll
     - misspell
     - nakedret
@@ -36,3 +35,10 @@ linters:
     - unused
     - varcheck
     - whitespace
+issues:
+  exclude:
+    - Using the variable on range scope .* in function literal
+
+linters-settings:
+  errcheck:
+    exclude: .errcheck-exclude
