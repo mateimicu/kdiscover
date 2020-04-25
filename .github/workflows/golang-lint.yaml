@@ -1,0 +1,16 @@
+name: Lint & build Golang project
+
+on: [push, pull_request]
+
+jobs:
+  lint:
+    name: Go lint
+
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v2
+      - uses: actions/setup-go@v2
+      - uses: reviewdog/action-golangci-lint@v1
+        with:
+          github_token: ${{ secrets.github_token }}
