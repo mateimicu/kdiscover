@@ -13,11 +13,11 @@ Currently it support EKS clusters but we plan to expand it to GKE, AKS and maybe
 - [x] allow for templated alias for the cluster name (give access to region, partition, cluster name, cluster arn)
 - [x] investigate maybe it is worth parsing the kubeconfig instead of executing another command
 - [x] CleanUp comments. print statements
-- [ ] prepare a ci pipeline and maybe a cd one
-- [ ] prepare packages for brew to distribute this project (and maybe others)
-- [ ] add documentation to the readme
-- [ ] refactor modules (move from cmd to internals and add a better structure to internals)
-- [ ] add documentation to modules
-- [ ] add tests for important parts and expecially some integration tests
+- [x] prepare a ci pipeline
 - [ ] add `aws` namespace in the CLI tree
+- [ ] add tests for important parts and expecially some integration tests
+- [ ] refactor modules (move from cmd to internals and add a better structure to internals)
+- [ ] prepare packages for brew to distribute this project (and maybe others)
+- [ ] prepare a cd pipeline (proabably build and publish artefacts)
+- [ ] add documentation to the readme
 - [ ] add GKE support
