@@ -24,7 +24,7 @@ func newUpdateCommand() *cobra.Command {
 	updateCommand := &cobra.Command{
 		Use:   "update",
 		Short: "Update all EKS Clusters",
-		Run: func(cmd *cobra.Command, args []string) {
+		RunE: func(cmd *cobra.Command, args []string) error {
 			fmt.Println(cmd.Short)
 			remoteEKSClusters := internal.GetEKSClusters(awsRegions)
 			log.Info(remoteEKSClusters)
@@ -39,15 +39,14 @@ func newUpdateCommand() *cobra.Command {
 				fmt.Printf("Backup kubeconfig to %v\n", bName)
 				err = copy(kubeconfigPath, bName)
 				if err != nil {
-					fmt.Println(err.Error())
-					return
+					return err
 				}
 			}
 			err := internal.UpdateKubeconfig(remoteEKSClusters, kubeconfigPath, contextName{templateValue: alias})
 			if err != nil {
-				fmt.Println(err.Error())
-				return
+				return err
 			}
+			return nil
 		},
 	}
 	updateCommand.Flags().BoolVar(&backupKubeconfig, "backup-kubeconfig", true, "Backup cubeconfig before update")

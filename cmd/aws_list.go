@@ -15,7 +15,7 @@ func newListCommand() *cobra.Command {
 	listCommand := &cobra.Command{
 		Use:   "list",
 		Short: "List all EKS Clusters",
-		Run: func(cmd *cobra.Command, args []string) {
+		RunE: func(cmd *cobra.Command, args []string) error {
 			remoteEKSClusters := internal.GetEKSClusters(awsRegions)
 			log.Info(remoteEKSClusters)
 
@@ -45,6 +45,8 @@ func newListCommand() *cobra.Command {
 			})
 			// render it
 			fmt.Println(tw.Render())
+
+			return nil
 		},
 	}
 
