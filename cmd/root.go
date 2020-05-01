@@ -38,7 +38,6 @@ all regions on an AWS account and try to find all EKS clsuters.
 It will try to upgrade the kube-config for each cluster.`,
 
 		PersistentPreRunE: func(cmd *cobra.Command, args []string) error {
-			fmt.Println("root")
 			if logLevel == "none" {
 				log.SetOutput(ioutil.Discard)
 				return nil
