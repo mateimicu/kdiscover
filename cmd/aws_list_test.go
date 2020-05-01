@@ -9,16 +9,6 @@ import (
 	"github.com/mateimicu/kdiscover/internal"
 )
 
-//import (
-//"fmt"
-//"io/ioutil"
-//"strings"
-//"testing"
-
-//log "github.com/sirupsen/logrus"
-//"github.com/zenizh/go-capturer"
-//)
-
 func getMockClusters(c int) []internal.Cluster {
 	d := make([]internal.Cluster, 0, c)
 	for i := 0; i < c; i++ {
