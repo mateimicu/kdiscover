@@ -20,36 +20,49 @@ var (
 	alias            string
 )
 
+func backupKubeConfig(kubeconfigPath string) error {
+	bName, err := generateBackupName(kubeconfigPath)
+	if err != nil {
+		log.WithFields(log.Fields{
+			"kubeconfig-path": kubeconfigPath,
+			"err":             err.Error(),
+		}).Info("Can't generate backup file name ")
+	}
+	fmt.Printf("Backup kubeconfig to %v\n", bName)
+	err = copy(kubeconfigPath, bName)
+	if err != nil {
+		return err
+	}
+	return nil
+}
+
 func newUpdateCommand() *cobra.Command {
 	updateCommand := &cobra.Command{
 		Use:   "update",
 		Short: "Update all EKS Clusters",
-		Run: func(cmd *cobra.Command, args []string) {
+		RunE: func(cmd *cobra.Command, args []string) error {
 			fmt.Println(cmd.Short)
+
 			remoteEKSClusters := internal.GetEKSClusters(awsRegions)
 			log.Info(remoteEKSClusters)
+
 			fmt.Printf("Found %v clusters remote\n", len(remoteEKSClusters))
+
 			if backupKubeconfig && fileExists(kubeconfigPath) {
-				bName, err := generateBackupName(kubeconfigPath)
+				err := backupKubeConfig(kubeconfigPath)
 				if err != nil {
-					log.WithFields(log.Fields{
-						"kubeconfig-path": kubeconfigPath,
-					}).Info("Can't generate backup file name ")
-				}
-				fmt.Printf("Backup kubeconfig to %v\n", bName)
-				err = copy(kubeconfigPath, bName)
-				if err != nil {
-					fmt.Println(err.Error())
-					return
+					return err
 				}
 			}
+
 			err := internal.UpdateKubeconfig(remoteEKSClusters, kubeconfigPath, contextName{templateValue: alias})
 			if err != nil {
-				fmt.Println(err.Error())
-				return
+				return err
 			}
+			return nil
 		},
 	}
+
 	updateCommand.Flags().BoolVar(&backupKubeconfig, "backup-kubeconfig", true, "Backup cubeconfig before update")
 	updateCommand.Flags().StringVar(
 		&alias,
