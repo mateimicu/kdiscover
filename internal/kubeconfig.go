@@ -89,7 +89,7 @@ func UpdateKubeconfig(clusters []Cluster, kubeconfigPath string, gen ContextName
 	cfg := clientcmd.GetConfigFromFileOrDie(kubeconfigPath)
 
 	for _, cls := range clusters {
-		key := cls.Arn
+		key := cls.Id
 		cfg.AuthInfos[key] = getConfigAuthInfo(cls, authType)
 		cfg.Clusters[key] = getConfigCluster(cls)
 		ctxName, err := gen.GetContextName(cls)
@@ -129,21 +129,4 @@ func getAWSCLIversion() *semver.Version {
 // based on the system
 func GetDefaultKubeconfigPath() string {
 	return clientcmd.RecommendedHomeFile
-}
-
-// IsExported will check if the cluster is already exporter
-// in the kubeconfig file
-// We consider a cluster "exported" if we have:
-// * a `cluster` with the same Endpoint
-// * a context for the cluster
-func (cls *Cluster) IsExported(kubeconfigPath string) bool {
-	cfg := clientcmd.GetConfigFromFileOrDie(kubeconfigPath)
-	for _, ctx := range cfg.Contexts {
-		if cluster, ok := cfg.Clusters[ctx.Cluster]; ok {
-			if cluster.Server == cls.Endpoint {
-				return true
-			}
-		}
-	}
-	return false
 }
