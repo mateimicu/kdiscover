@@ -37,4 +37,5 @@ jobs:
       - uses: actions/setup-go@v2
       - name: Run Tests
         run: |
-          go test -race -v ./...
+          go test -race -v -coverprofile=coverage.txt -covermode=atomic ./...
+      - uses: codecov/codecov-action@v1
