@@ -42,3 +42,8 @@ issues:
 linters-settings:
   errcheck:
     exclude: .errcheck-exclude
+  gomnd:
+    settings:
+      mnd:
+        # TODO(mmicu): exclude this when golangci-lint will include v2.0.0 of go-mnd
+        exclude: argument
