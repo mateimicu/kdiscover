@@ -3,7 +3,6 @@ package cmd
 
 import (
 	"fmt"
-	"os"
 
 	"github.com/mateimicu/kdiscover/internal"
 	"github.com/spf13/cobra"
@@ -20,7 +19,20 @@ func newAWSCommand() *cobra.Command {
 	AWSCommand := &cobra.Command{
 		Use:   "aws",
 		Short: "Work with AWS EKS clusters",
-		PersistentPreRun: func(cmd *cobra.Command, args []string) {
+		PersistentPreRunE: func(cmd *cobra.Command, args []string) error {
+			// Because cobra will only run the last PersistentPreRunE
+			// we need to search for the root and run the function.
+			// This is not a robust solution as there may be multiple
+			// PersistentPreRunE function between the leaf command and root
+			// also this assumes that this is the root one
+			// An issue about this https://github.com/spf13/cobra/issues/252
+			root := cmd
+			for ; root.HasParent(); root = root.Parent() {
+			}
+			err := root.PersistentPreRunE(cmd, args)
+			if err != nil {
+				return err
+			}
 			log.WithFields(log.Fields{
 				"partitions": awsPartitions,
 			}).Debug("Search regions for partitions")
@@ -31,15 +43,17 @@ func newAWSCommand() *cobra.Command {
 				log.WithFields(log.Fields{
 					"partitions": awsPartitions,
 				}).Error("Can't find regions for partitions")
-				os.Exit(errorExitCode)
+				return fmt.Errorf("Can't find regions for partitions %v", awsPartitions)
 			}
 
 			log.WithFields(log.Fields{
 				"regions": awsRegions,
 			}).Info("Founds regions")
+			return nil
 		},
-		Run: func(cmd *cobra.Command, args []string) {
+		RunE: func(cmd *cobra.Command, args []string) error {
 			cmd.HelpFunc()(cmd, args)
+			return nil
 		},
 	}
 
@@ -55,8 +69,6 @@ func newAWSCommand() *cobra.Command {
 		internal.GetDefaultKubeconfigPath(),
 		"Path to the kubeconfig to work with")
 
-	AWSCommand.AddCommand(newListCommand())
-	AWSCommand.AddCommand(newUpdateCommand())
-
+	AWSCommand.AddCommand(newListCommand(), newUpdateCommand())
 	return AWSCommand
 }

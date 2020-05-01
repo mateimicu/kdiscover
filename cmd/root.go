@@ -15,32 +15,50 @@ import (
 const errorExitCode int = 1
 
 var (
+	loggingLevels map[string]log.Level = map[string]log.Level{
+		"none":  0,
+		"panic": log.PanicLevel,
+		"fatal": log.FatalLevel,
+		"error": log.ErrorLevel,
+		"warn":  log.WarnLevel,
+		"info":  log.InfoLevel,
+		"debug": log.DebugLevel,
+		"trace": log.TraceLevel,
+	}
 	kubeconfigPath string
-	debug          bool
-	rootCmd        = &cobra.Command{
+	logLevel       string
+)
+
+func NewRootCommand() *cobra.Command {
+	rootCmd := &cobra.Command{
 		Use:   "kdiscover",
 		Short: "Discover all EKS clusters on an account.",
 		Long: `kdiscover is a simple utility that can search
 all regions on an AWS account and try to find all EKS clsuters.
 It will try to upgrade the kube-config for each cluster.`,
 
-		PersistentPreRun: func(cmd *cobra.Command, args []string) {
-			if debug {
-				log.SetLevel(log.DebugLevel)
-			} else {
+		PersistentPreRunE: func(cmd *cobra.Command, args []string) error {
+			fmt.Println("root")
+			if logLevel == "none" {
 				log.SetOutput(ioutil.Discard)
+				return nil
 			}
+
+			if v, ok := loggingLevels[logLevel]; ok {
+				log.SetLevel(v)
+				return nil
+			}
+
+			return fmt.Errorf("Can't find logging level %v", logLevel)
 		},
 
-		Run: func(cmd *cobra.Command, args []string) {
+		RunE: func(cmd *cobra.Command, args []string) error {
 			cmd.HelpFunc()(cmd, args)
+			return nil
 		},
 	}
-)
 
-// Execute will create the tree of commands and will start parsing and execution
-func Execute() {
-	rootCmd.PersistentFlags().BoolVar(&debug, "debug", false, "set log level to debug")
+	rootCmd.PersistentFlags().StringVar(&logLevel, "log-level", "none", fmt.Sprintf("Set logging lvl. Supported %v", getAllLogglingLevels()))
 
 	rootCmd.PersistentFlags().StringVar(
 		&kubeconfigPath,
@@ -49,9 +67,24 @@ func Execute() {
 		"Path to the kubeconfig to work with")
 
 	rootCmd.AddCommand(newAWSCommand())
+	return rootCmd
+}
+
+// Execute will create the tree of commands and will start parsing and execution
+func Execute() {
+	rootCmd := NewRootCommand()
 
 	if err := rootCmd.Execute(); err != nil {
 		fmt.Println(err)
 		os.Exit(errorExitCode)
 	}
+}
+
+func getAllLogglingLevels() []string {
+	keys := make([]string, 0, len(loggingLevels))
+	for k := range loggingLevels {
+		keys = append(keys, k)
+	}
+
+	return keys
 }
