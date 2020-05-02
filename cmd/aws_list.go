@@ -2,8 +2,6 @@
 package cmd
 
 import (
-	"fmt"
-
 	"github.com/jedib0t/go-pretty/table"
 	"github.com/jedib0t/go-pretty/text"
 	"github.com/mateimicu/kdiscover/internal"
@@ -59,7 +57,7 @@ func newListCommand() *cobra.Command {
 			remoteEKSClusters := internal.GetEKSClusters(awsRegions)
 			log.Info(remoteEKSClusters)
 
-			fmt.Println(getTable(remoteEKSClusters))
+			cmd.Println(getTable(remoteEKSClusters))
 			return nil
 		},
 	}
