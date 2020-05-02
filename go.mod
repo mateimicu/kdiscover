@@ -11,7 +11,6 @@ require (
 	github.com/mattn/go-runewidth v0.0.9 // indirect
 	github.com/sirupsen/logrus v1.2.0
 	github.com/spf13/cobra v0.0.6
-	github.com/zenizh/go-capturer v0.0.0-20171211120116-e492ea43421d
 	k8s.io/client-go v0.18.2
 	k8s.io/utils v0.0.0-20200414100711-2df71ebbae66 // indirect
 )
