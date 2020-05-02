@@ -14,6 +14,23 @@ import (
 	log "github.com/sirupsen/logrus"
 )
 
+type EKSCluster cluster.Cluster {}
+
+func getConfigAuthInfo(cls cluster.Cluster, authType int) *clientcmdapi.AuthInfo {
+	authInfo := clientcmdapi.NewAuthInfo()
+	args := make([]string, len(options[authType]))
+	copy(args, options[authType])
+	args = append(args, cls.Name)
+	args = append(args, "--region", cls.Region)
+
+	authInfo.Exec = &clientcmdapi.ExecConfig{
+		Command:    commands[authType],
+		Args:       args,
+		APIVersion: clientAPIVersion}
+	return authInfo
+}
+
+
 func getNewCluster(clsName string, svc *eks.EKS) (cluster.Cluster, error) {
 	input := &eks.DescribeClusterInput{
 		Name: aws.String(clsName),
