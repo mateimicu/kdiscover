@@ -12,14 +12,14 @@ import (
 
 type mockExportable struct{}
 
-func (_ mockExportable) IsExported(cls kubeconfig.Endpointer) bool {
+func (mockExportable) IsExported(cls kubeconfig.Endpointer) bool {
 	return false
 }
 
 // Test if the number of clusters is corectly diplayed
 func Test_getTable(t *testing.T) {
 	tts := []struct {
-		clusters []cluster.Cluster
+		clusters []*cluster.Cluster
 	}{
 		{clusters: cluster.GetMockClusters(0)},
 		{clusters: cluster.GetMockClusters(1)},
@@ -28,11 +28,7 @@ func Test_getTable(t *testing.T) {
 	for _, tt := range tts {
 		testname := fmt.Sprintf("Clusters %v", tt.clusters)
 		t.Run(testname, func(t *testing.T) {
-			clusters := make([]clusterDescribe, len(tt.clusters))
-			for i, c := range tt.clusters {
-				clusters[i] = clusterDescribe(&c)
-			}
-			r := getTable(clusters, mockExportable{})
+			r := getTable(convertToInterfaces(tt.clusters), mockExportable{})
 			if !strings.Contains(r, fmt.Sprintf("%v", len(tt.clusters))) {
 				t.Errorf("Expected %v in output, but got %v", len(tt.clusters), r)
 			}

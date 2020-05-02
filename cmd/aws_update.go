@@ -2,16 +2,13 @@
 package cmd
 
 import (
-	"bytes"
 	"fmt"
-	"html/template"
 	"io"
 	"os"
 	"path"
 	"path/filepath"
 
 	"github.com/mateimicu/kdiscover/internal/aws"
-	"github.com/mateimicu/kdiscover/internal/cluster"
 	"github.com/mateimicu/kdiscover/internal/kubeconfig"
 	log "github.com/sirupsen/logrus"
 	"github.com/spf13/cobra"
@@ -57,13 +54,12 @@ func newUpdateCommand() *cobra.Command {
 				cmd.Printf("Backup kubeconfig to %v\n", bName)
 			}
 			kubeconfig, err := kubeconfig.LoadKubeconfig(kubeconfigPath)
-			return nil
 			if err != nil {
 				return err
 			}
 
 			for _, cls := range remoteEKSClusters {
-				ctxName, err := cls.GetContextName(alias)
+				ctxName, err := cls.PrettyName(alias)
 				if err != nil {
 					log.WithFields(log.Fields{
 						"cluster": cls,
@@ -85,19 +81,6 @@ func newUpdateCommand() *cobra.Command {
 		"Template for the context name. Has acces to Cluster type")
 
 	return updateCommand
-}
-
-func GetContextName(cls cluster.Cluster, templateValue string) (string, error) {
-	tmpl, err := template.New("context-name").Parse(templateValue)
-	if err != nil {
-		return "", err
-	}
-	var tpl bytes.Buffer
-	err = tmpl.Execute(&tpl, cls)
-	if err != nil {
-		return "", err
-	}
-	return tpl.String(), nil
 }
 
 func copy(src, dst string) error {

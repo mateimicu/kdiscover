@@ -44,7 +44,7 @@ func newAWSCommand() *cobra.Command {
 				log.WithFields(log.Fields{
 					"partitions": awsPartitions,
 				}).Error("Can't find regions for partitions")
-				return fmt.Errorf("Can't find regions for partitions %v", awsPartitions)
+				return fmt.Errorf("can't find regions for partitions %v", awsPartitions)
 			}
 
 			log.WithFields(log.Fields{
