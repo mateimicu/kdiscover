@@ -22,12 +22,16 @@ func Test_generateBackupNameNoConflict(t *testing.T) {
 		t.Error(err.Error())
 	}
 
-	err = backupKubeConfig(kubeconfigPath)
+	bName, err := backupKubeConfig(kubeconfigPath)
 	if err != nil {
 		t.Error(err.Error())
 	}
 
 	if !fileExists(backupKubeconfigPath) {
 		t.Errorf("Expecing %v to exist as backup of %v", backupKubeconfigPath, kubeconfigPath)
+	}
+
+	if bName != backupKubeconfigPath {
+		t.Errorf("Backup name is %v, expected %v", bName, backupKubeconfigPath)
 	}
 }

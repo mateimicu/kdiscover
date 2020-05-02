@@ -4,11 +4,12 @@ package cmd
 import (
 	"fmt"
 	"io/ioutil"
+	"os"
+	"path/filepath"
 	"strings"
 	"testing"
 
 	log "github.com/sirupsen/logrus"
-	"github.com/zenizh/go-capturer"
 )
 
 var basicCommands []struct{ cmd []string } = []struct {
@@ -24,22 +25,30 @@ var basicCommands []struct{ cmd []string } = []struct {
 // with all the possible combination of commands in order to check that the logging hack worsk
 // An issue about this https://github.com/spf13/cobra/issues/252
 func Test_CascadingPersistPreRunEHackWithLoggingLevels(t *testing.T) {
+	t.Parallel()
 	for _, tt := range basicCommands {
 		for k, exp := range loggingLevels {
 
 			testname := fmt.Sprintf("command %v and logging lvl %v", tt.cmd, k)
 			t.Run(testname, func(t *testing.T) {
+				dir, err := ioutil.TempDir("", ".kube")
+				if err != nil {
+					t.Error(err.Error())
+				}
+				defer os.RemoveAll(dir)
+
+				kubeconfigPath := filepath.Join(dir, "kubeconfig")
 				cmd := NewRootCommand()
 				cmd.SetOut(ioutil.Discard)
 				cmd.SetErr(ioutil.Discard)
 
 				completCmd := append(tt.cmd, "--log-level")
 				completCmd = append(completCmd, k)
+				completCmd = append(completCmd, "--kubeconfig-path")
+				completCmd = append(completCmd, kubeconfigPath)
 
 				cmd.SetArgs(completCmd)
-				capturer.CaptureOutput(func() {
-					cmd.Execute()
-				})
+				cmd.Execute()
 
 				// none logging level is a special case
 				if k == "none" {
@@ -64,15 +73,17 @@ func Test_HelpFunction(t *testing.T) {
 		t.Run(testname, func(t *testing.T) {
 			cmd := NewRootCommand()
 
+			buf := new(strings.Builder)
+			cmd.SetOut(buf)
+			cmd.SetErr(buf)
+
 			completCmd := append(tt.cmd, "--help")
 
 			cmd.SetArgs(completCmd)
-			out := capturer.CaptureOutput(func() {
-				cmd.Execute()
-			})
+			cmd.Execute()
 
-			if !strings.Contains(string(out), expected) {
-				t.Errorf("Running %v we were expecting %v in the ouput but got: %v", completCmd, expected, out)
+			if !strings.Contains(string(buf.String()), expected) {
+				t.Errorf("Running %v we were expecting %v in the ouput but got: %v", completCmd, expected, buf.String())
 			}
 		})
 	}
