@@ -2,7 +2,9 @@
 package cluster
 
 import (
+	"bytes"
 	"fmt"
+	"html/template"
 
 	clientcmdapi "k8s.io/client-go/tools/clientcmd/api"
 )
@@ -26,17 +28,34 @@ type Cluster struct {
 	Endpoint                 string
 	CertificateAuthorityData string
 	Status                   string
+	GenerateClusterConfig    func(cls *Cluster) *clientcmdapi.Cluster
+	GenerateAuthInfo         func(cls *Cluster) *clientcmdapi.AuthInfo
+}
+
+func NewCluster() *Cluster {
+	return &Cluster{
+		GenerateClusterConfig: defaultGenerateClusterConfig,
+	}
 }
 
 func (cls *Cluster) GetUniqueId() string {
 	return fmt.Sprintf("%v-%v-%v-%v", cls.Provider, cls.Id, cls.Region, cls.Name)
 }
 
-func (cls *Cluster) GetConfigCluster() *clientcmdapi.Cluster {
+func defaultGenerateClusterConfig(cls *Cluster) *clientcmdapi.Cluster {
 	cluster := clientcmdapi.NewCluster()
 	cluster.Server = cls.Endpoint
 	cluster.CertificateAuthorityData = []byte(cls.CertificateAuthorityData)
 	return cluster
+
+}
+
+func (cls *Cluster) GetConfigAuthInfo() *clientcmdapi.AuthInfo {
+	return cls.GenerateAuthInfo(cls)
+}
+
+func (cls *Cluster) GetConfigCluster() *clientcmdapi.Cluster {
+	return cls.GenerateClusterConfig(cls)
 }
 
 func (cls *Cluster) GetName() string {
@@ -53,4 +72,17 @@ func (cls *Cluster) GetStatus() string {
 
 func (cls *Cluster) GetEndpoint() string {
 	return cls.Endpoint
+}
+
+func (cls *Cluster) GetContextName(templateValue string) (string, error) {
+	tmpl, err := template.New("context-name").Parse(templateValue)
+	if err != nil {
+		return "", err
+	}
+	var tpl bytes.Buffer
+	err = tmpl.Execute(&tpl, cls)
+	if err != nil {
+		return "", err
+	}
+	return tpl.String(), nil
 }

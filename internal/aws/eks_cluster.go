@@ -2,11 +2,9 @@
 package aws
 
 import (
-	"bytes"
 	"encoding/base64"
 	"errors"
 	"fmt"
-	"html/template"
 	"os/exec"
 	"regexp"
 	"sync"
@@ -19,8 +17,6 @@ import (
 	log "github.com/sirupsen/logrus"
 	clientcmdapi "k8s.io/client-go/tools/clientcmd/api"
 )
-
-type EKSCluster cluster.Cluster
 
 const (
 	useAWSCLI = iota
@@ -45,7 +41,7 @@ var (
 	}
 )
 
-func (cls *EKSCluster) GetConfigAuthInfo() *clientcmdapi.AuthInfo {
+func getConfigAuthInfo(cls *cluster.Cluster) *clientcmdapi.AuthInfo {
 	authType := getAuthType()
 	authInfo := clientcmdapi.NewAuthInfo()
 	args := make([]string, len(options[authType]))
@@ -60,7 +56,7 @@ func (cls *EKSCluster) GetConfigAuthInfo() *clientcmdapi.AuthInfo {
 	return authInfo
 }
 
-func getNewCluster(clsName string, svc *eks.EKS) (EKSCluster, error) {
+func getNewCluster(clsName string, svc *eks.EKS) (*cluster.Cluster, error) {
 	input := &eks.DescribeClusterInput{
 		Name: aws.String(clsName),
 	}
@@ -74,7 +70,7 @@ func getNewCluster(clsName string, svc *eks.EKS) (EKSCluster, error) {
 		}
 		msg := fmt.Sprintf("Can't fetch more details for the cluster %v", clsName)
 		log.Warn(msg)
-		return EKSCluster{}, errors.New(msg)
+		return &cluster.Cluster{}, errors.New(msg)
 	}
 	certificatAuthorityData, err := base64.StdEncoding.DecodeString(*result.Cluster.CertificateAuthority.Data)
 	if err != nil {
@@ -85,16 +81,17 @@ func getNewCluster(clsName string, svc *eks.EKS) (EKSCluster, error) {
 		}).Error("Can't decode the Certificate Authority Data")
 	}
 
-	return EKSCluster{
-		Name:                     *result.Cluster.Name,
-		Id:                       *result.Cluster.Arn,
-		Endpoint:                 *result.Cluster.Endpoint,
-		CertificateAuthorityData: string(certificatAuthorityData),
-		Status:                   *result.Cluster.Status,
-	}, nil
+	cls := cluster.NewCluster()
+	cls.Name = *result.Cluster.Name
+	cls.Id = *result.Cluster.Arn
+	cls.Endpoint = *result.Cluster.Endpoint
+	cls.CertificateAuthorityData = string(certificatAuthorityData)
+	cls.Status = *result.Cluster.Status
+
+	return cls, nil
 }
 
-func getEKSClustersPerRegion(region string, ch chan<- EKSCluster, wg *sync.WaitGroup) {
+func getEKSClustersPerRegion(region string, ch chan<- *cluster.Cluster, wg *sync.WaitGroup) {
 	sess, err := getAWSSession(region)
 	if err != nil {
 		log.WithFields(log.Fields{
@@ -137,11 +134,11 @@ func getEKSClustersPerRegion(region string, ch chan<- EKSCluster, wg *sync.WaitG
 // GetEKSClusters will query the given regions and return a list of
 // clusters accesable. It will use the default credential chain for AWS
 // in order to figure out the context for the API calls
-func GetEKSClusters(regions []string) []EKSCluster {
-	clusters := make([]EKSCluster, 0, len(regions))
+func GetEKSClusters(regions []string) []*cluster.Cluster {
+	clusters := make([]*cluster.Cluster, 0, len(regions))
 
 	var wg sync.WaitGroup
-	ch := make(chan EKSCluster)
+	ch := make(chan *cluster.Cluster)
 
 	for _, region := range regions {
 		log.WithFields(log.Fields{
@@ -199,44 +196,4 @@ func getAWSCLIversion() *semver.Version {
 		}).Info("Found AWS CLI version")
 	}
 	return v
-}
-
-func (cls *EKSCluster) GetUniqueId() string {
-	return fmt.Sprintf("%v-%v-%v-%v", cls.Provider, cls.Id, cls.Region, cls.Name)
-}
-
-func (cls *EKSCluster) GetConfigCluster() *clientcmdapi.Cluster {
-	cluster := clientcmdapi.NewCluster()
-	cluster.Server = cls.Endpoint
-	cluster.CertificateAuthorityData = []byte(cls.CertificateAuthorityData)
-	return cluster
-}
-
-func (cls *EKSCluster) GetName() string {
-	return cls.Name
-}
-
-func (cls *EKSCluster) GetRegion() string {
-	return cls.Region
-}
-
-func (cls *EKSCluster) GetStatus() string {
-	return cls.Status
-}
-
-func (cls *EKSCluster) GetEndpoint() string {
-	return cls.Endpoint
-}
-
-func (cls EKSCluster) GetContextName(templateValue string) (string, error) {
-	tmpl, err := template.New("context-name").Parse(templateValue)
-	if err != nil {
-		return "", err
-	}
-	var tpl bytes.Buffer
-	err = tmpl.Execute(&tpl, cls)
-	if err != nil {
-		return "", err
-	}
-	return tpl.String(), nil
 }
