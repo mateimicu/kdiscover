@@ -6,6 +6,7 @@ import (
 
 	cluster "github.com/mateimicu/kdiscover/internal/cluster"
 	"gopkg.in/yaml.v2"
+	"k8s.io/client-go/tools/clientcmd/api"
 	clientcmdapi "k8s.io/client-go/tools/clientcmd/api"
 )
 
@@ -47,8 +48,15 @@ func (k *Kubeconfig) AddCluster(cls cluster.Cluster, ctxName string) {
 	authType := getAuthType()
 	key := cls.Id
 	k.cfg.AuthInfos[key] = getConfigAuthInfo(cls, authType)
-	k.cfg.Clusters[key] = getConfigCluster(cls)
+	k.cfg.Clusters[key] = cls.GetConfigCluster()
 	k.cfg.Contexts[ctxName] = getConfigContext(key)
+}
+
+func getConfigContext(ctxName string) *clientcmdapi.Context {
+	ctx := api.NewContext()
+	ctx.Cluster = ctxName
+	ctx.AuthInfo = ctxName
+	return ctx
 }
 
 // Return all the clusters from a kubeconfig file

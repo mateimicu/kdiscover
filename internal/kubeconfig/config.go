@@ -7,7 +7,6 @@ import (
 	cluster "github.com/mateimicu/kdiscover/internal/cluster"
 	log "github.com/sirupsen/logrus"
 	"k8s.io/client-go/tools/clientcmd"
-	"k8s.io/client-go/tools/clientcmd/api"
 	clientcmdapi "k8s.io/client-go/tools/clientcmd/api"
 )
 
@@ -76,13 +75,6 @@ func getKubeConfig(kubeconfigPath string) (*clientcmdapi.Config, error) {
 	return cfg, nil
 }
 
-func getConfigCluster(cls cluster.Cluster) *clientcmdapi.Cluster {
-	cluster := clientcmdapi.NewCluster()
-	cluster.Server = cls.Endpoint
-	cluster.CertificateAuthorityData = []byte(cls.CertificateAuthorityData)
-	return cluster
-}
-
 func getConfigAuthInfo(cls cluster.Cluster, authType int) *clientcmdapi.AuthInfo {
 	authInfo := clientcmdapi.NewAuthInfo()
 	args := make([]string, len(options[authType]))
@@ -95,11 +87,4 @@ func getConfigAuthInfo(cls cluster.Cluster, authType int) *clientcmdapi.AuthInfo
 		Args:       args,
 		APIVersion: clientAPIVersion}
 	return authInfo
-}
-
-func getConfigContext(name string) *clientcmdapi.Context {
-	ctx := api.NewContext()
-	ctx.Cluster = name
-	ctx.AuthInfo = name
-	return ctx
 }

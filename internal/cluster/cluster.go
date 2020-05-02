@@ -1,6 +1,10 @@
 // Package internal provides function for working with EKS cluseters
 package cluster
 
+import (
+	clientcmdapi "k8s.io/client-go/tools/clientcmd/api"
+)
+
 type K8sProvider int
 
 const (
@@ -20,4 +24,11 @@ type Cluster struct {
 	Endpoint                 string
 	CertificateAuthorityData string
 	Status                   string
+}
+
+func (cls *Cluster) GetConfigCluster() *clientcmdapi.Cluster {
+	cluster := clientcmdapi.NewCluster()
+	cluster.Server = cls.Endpoint
+	cluster.CertificateAuthorityData = []byte(cls.CertificateAuthorityData)
+	return cluster
 }
