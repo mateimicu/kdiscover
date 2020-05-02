@@ -83,10 +83,11 @@ func getNewCluster(clsName string, svc *eks.EKS) (*cluster.Cluster, error) {
 
 	cls := cluster.NewCluster()
 	cls.Name = *result.Cluster.Name
-	cls.Id = *result.Cluster.Arn
+	cls.ID = *result.Cluster.Arn
 	cls.Endpoint = *result.Cluster.Endpoint
 	cls.CertificateAuthorityData = string(certificatAuthorityData)
 	cls.Status = *result.Cluster.Status
+	cls.GenerateAuthInfo = getConfigAuthInfo
 
 	return cls, nil
 }

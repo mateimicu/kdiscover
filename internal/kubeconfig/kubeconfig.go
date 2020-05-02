@@ -3,17 +3,24 @@ package kubeconfig
 
 import (
 	"io/ioutil"
+	"os"
 
 	cluster "github.com/mateimicu/kdiscover/internal/cluster"
 	"gopkg.in/yaml.v2"
-	"k8s.io/client-go/tools/clientcmd/api"
+	"k8s.io/client-go/tools/clientcmd"
 	clientcmdapi "k8s.io/client-go/tools/clientcmd/api"
 )
 
-// ContextNameGenerator used for generating clusters names, the names
-// are used for kubeconfig context
-type ContextNameGenerator interface {
-	GetContextName(cls cluster.Cluster) (string, error)
+type ClusterExporter interface {
+	GetConfigCluster() *clientcmdapi.Cluster
+	GetConfigAuthInfo() *clientcmdapi.AuthInfo
+	GetUniqueID() string
+}
+
+// GetDefaultKubeconfigPath Returns the default path for the kubeconfig file
+// based on the system
+func GetDefaultKubeconfigPath() string {
+	return clientcmd.RecommendedHomeFile
 }
 
 type Kubeconfig struct {
@@ -45,14 +52,14 @@ func (k *Kubeconfig) Persist(path string) error {
 }
 
 func (k *Kubeconfig) AddCluster(cls ClusterExporter, ctxName string) {
-	key := cls.GetUniqueId()
+	key := cls.GetUniqueID()
 	k.cfg.AuthInfos[key] = cls.GetConfigAuthInfo()
 	k.cfg.Clusters[key] = cls.GetConfigCluster()
 	k.cfg.Contexts[ctxName] = getConfigContext(key)
 }
 
 func getConfigContext(ctxName string) *clientcmdapi.Context {
-	ctx := api.NewContext()
+	ctx := clientcmdapi.NewContext()
 	ctx.Cluster = ctxName
 	ctx.AuthInfo = ctxName
 	return ctx
@@ -61,7 +68,7 @@ func getConfigContext(ctxName string) *clientcmdapi.Context {
 // Return all the clusters from a kubeconfig file
 // the data
 func (k *Kubeconfig) GetClusters() (map[string]cluster.Cluster, error) {
-	clusters := make(map[string]cluster.Cluster, 0)
+	clusters := make(map[string]cluster.Cluster)
 	for name, c := range k.cfg.Clusters {
 		cls := cluster.Cluster{
 			Endpoint:                 c.Server,
@@ -91,4 +98,15 @@ func (k *Kubeconfig) IsExported(cls Endpointer) bool {
 		}
 	}
 	return false
+}
+
+func getKubeConfig(kubeconfigPath string) (*clientcmdapi.Config, error) {
+	cfg, err := clientcmd.LoadFromFile(kubeconfigPath)
+	if err != nil && !os.IsNotExist(err) {
+		return nil, err
+	}
+	if cfg == nil {
+		return clientcmdapi.NewConfig(), nil
+	}
+	return cfg, nil
 }

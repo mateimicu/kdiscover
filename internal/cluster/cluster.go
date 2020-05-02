@@ -24,7 +24,7 @@ type Cluster struct {
 	Provider                 K8sProvider
 	Name                     string
 	Region                   string
-	Id                       string
+	ID                       string
 	Endpoint                 string
 	CertificateAuthorityData string
 	Status                   string
@@ -38,8 +38,8 @@ func NewCluster() *Cluster {
 	}
 }
 
-func (cls *Cluster) GetUniqueId() string {
-	return fmt.Sprintf("%v-%v-%v-%v", cls.Provider, cls.Id, cls.Region, cls.Name)
+func (cls *Cluster) GetUniqueID() string {
+	return fmt.Sprintf("%v-%v-%v-%v", cls.Provider, cls.ID, cls.Region, cls.Name)
 }
 
 func defaultGenerateClusterConfig(cls *Cluster) *clientcmdapi.Cluster {
@@ -47,7 +47,6 @@ func defaultGenerateClusterConfig(cls *Cluster) *clientcmdapi.Cluster {
 	cluster.Server = cls.Endpoint
 	cluster.CertificateAuthorityData = []byte(cls.CertificateAuthorityData)
 	return cluster
-
 }
 
 func (cls *Cluster) GetConfigAuthInfo() *clientcmdapi.AuthInfo {
@@ -74,7 +73,7 @@ func (cls *Cluster) GetEndpoint() string {
 	return cls.Endpoint
 }
 
-func (cls *Cluster) GetContextName(templateValue string) (string, error) {
+func (cls *Cluster) PrettyName(templateValue string) (string, error) {
 	tmpl, err := template.New("context-name").Parse(templateValue)
 	if err != nil {
 		return "", err

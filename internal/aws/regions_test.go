@@ -49,9 +49,7 @@ func TestGetRegions(t *testing.T) {
 			// compute partial result
 			partialResult := make([]string, 0)
 			for _, partition := range tt.partitions {
-				for _, v := range GetRegions([]string{partition}) {
-					partialResult = append(partialResult, v)
-				}
+				partialResult = append(partialResult, GetRegions([]string{partition})...)
 			}
 
 			sort.Strings(totalResult)

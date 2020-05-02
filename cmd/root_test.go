@@ -20,15 +20,14 @@ var basicCommands []struct{ cmd []string } = []struct {
 	{[]string{"aws", "update"}},
 }
 
-// Because cobra is not runing PersistantPreRunE for all the commands
-// untill the leaf command we implemented a hack. This test needs to be update
-// with all the possible combination of commands in order to check that the logging hack worsk
+// Because cobra is not running PersistantPreRunE for all the commands
+// until the leaf command we implemented a hack. This test needs to be update
+// with all the possible combination of commands in order to check that the logging hack work
 // An issue about this https://github.com/spf13/cobra/issues/252
 func Test_CascadingPersistPreRunEHackWithLoggingLevels(t *testing.T) {
 	t.Parallel()
 	for _, tt := range basicCommands {
 		for k, exp := range loggingLevels {
-
 			testname := fmt.Sprintf("command %v and logging lvl %v", tt.cmd, k)
 			t.Run(testname, func(t *testing.T) {
 				dir, err := ioutil.TempDir("", ".kube")
@@ -48,7 +47,10 @@ func Test_CascadingPersistPreRunEHackWithLoggingLevels(t *testing.T) {
 				completCmd = append(completCmd, kubeconfigPath)
 
 				cmd.SetArgs(completCmd)
-				cmd.Execute()
+				err = cmd.Execute()
+				if err != nil {
+					t.Error(err.Error())
+				}
 
 				// none logging level is a special case
 				if k == "none" {
@@ -80,10 +82,15 @@ func Test_HelpFunction(t *testing.T) {
 			completCmd := append(tt.cmd, "--help")
 
 			cmd.SetArgs(completCmd)
-			cmd.Execute()
+			err := cmd.Execute()
+			if err != nil {
+				t.Error(err.Error())
+			}
 
-			if !strings.Contains(string(buf.String()), expected) {
-				t.Errorf("Running %v we were expecting %v in the ouput but got: %v", completCmd, expected, buf.String())
+			if !strings.Contains(buf.String(), expected) {
+				t.Errorf(
+					"Running %v we were expecting %v in the output but got: %v",
+					completCmd, expected, buf.String())
 			}
 		})
 	}
@@ -92,7 +99,7 @@ func Test_HelpFunction(t *testing.T) {
 func Test_getAllLogglingLevels(t *testing.T) {
 	for _, lvl := range getAllLogglingLevels() {
 		if _, ok := loggingLevels[lvl]; !ok {
-			t.Errorf("Loging level %v not found in map", lvl)
+			t.Errorf("Logging level %v not found in map", lvl)
 		}
 	}
 }
