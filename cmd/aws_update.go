@@ -10,7 +10,9 @@ import (
 	"path"
 	"path/filepath"
 
-	"github.com/mateimicu/kdiscover/internal"
+	"github.com/mateimicu/kdiscover/internal/aws"
+	"github.com/mateimicu/kdiscover/internal/cluster"
+	"github.com/mateimicu/kdiscover/internal/kubeconfig"
 	log "github.com/sirupsen/logrus"
 	"github.com/spf13/cobra"
 )
@@ -42,7 +44,7 @@ func newUpdateCommand() *cobra.Command {
 		RunE: func(cmd *cobra.Command, args []string) error {
 			cmd.Println(cmd.Short)
 
-			remoteEKSClusters := internal.GetEKSClusters(awsRegions)
+			remoteEKSClusters := aws.GetEKSClusters(awsRegions)
 			log.Info(remoteEKSClusters)
 
 			cmd.Printf("Found %v clusters remote\n", len(remoteEKSClusters))
@@ -54,8 +56,7 @@ func newUpdateCommand() *cobra.Command {
 				}
 				cmd.Printf("Backup kubeconfig to %v\n", bName)
 			}
-
-			err := internal.UpdateKubeconfig(remoteEKSClusters, kubeconfigPath, contextName{templateValue: alias})
+			err := kubeconfig.UpdateKubeconfig(remoteEKSClusters, kubeconfigPath, contextName{templateValue: alias})
 			if err != nil {
 				return err
 			}
@@ -77,7 +78,7 @@ type contextName struct {
 	templateValue string
 }
 
-func (c contextName) GetContextName(cls internal.Cluster) (string, error) {
+func (c contextName) GetContextName(cls cluster.Cluster) (string, error) {
 	tmpl, err := template.New("context-name").Parse(c.templateValue)
 	if err != nil {
 		return "", err

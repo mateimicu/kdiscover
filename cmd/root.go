@@ -6,7 +6,7 @@ import (
 	"io/ioutil"
 	"os"
 
-	"github.com/mateimicu/kdiscover/internal"
+	"github.com/mateimicu/kdiscover/internal/kubeconfig"
 	"github.com/spf13/cobra"
 
 	log "github.com/sirupsen/logrus"
@@ -62,7 +62,7 @@ It will try to upgrade the kube-config for each cluster.`,
 	rootCmd.PersistentFlags().StringVar(
 		&kubeconfigPath,
 		"kubeconfig-path",
-		internal.GetDefaultKubeconfigPath(),
+		kubeconfig.GetDefaultKubeconfigPath(),
 		"Path to the kubeconfig to work with")
 
 	rootCmd.AddCommand(newAWSCommand())
