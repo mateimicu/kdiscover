@@ -20,7 +20,7 @@ var (
 	alias            string
 )
 
-func backupKubeConfig(kubeconfigPath string) error {
+func backupKubeConfig(kubeconfigPath string) (string, error) {
 	bName, err := generateBackupName(kubeconfigPath)
 	if err != nil {
 		log.WithFields(log.Fields{
@@ -28,12 +28,11 @@ func backupKubeConfig(kubeconfigPath string) error {
 			"err":             err.Error(),
 		}).Info("Can't generate backup file name ")
 	}
-	fmt.Printf("Backup kubeconfig to %v\n", bName)
 	err = copy(kubeconfigPath, bName)
 	if err != nil {
-		return err
+		return "", err
 	}
-	return nil
+	return bName, nil
 }
 
 func newUpdateCommand() *cobra.Command {
@@ -41,18 +40,19 @@ func newUpdateCommand() *cobra.Command {
 		Use:   "update",
 		Short: "Update all EKS Clusters",
 		RunE: func(cmd *cobra.Command, args []string) error {
-			fmt.Println(cmd.Short)
+			cmd.Println(cmd.Short)
 
 			remoteEKSClusters := internal.GetEKSClusters(awsRegions)
 			log.Info(remoteEKSClusters)
 
-			fmt.Printf("Found %v clusters remote\n", len(remoteEKSClusters))
+			cmd.Printf("Found %v clusters remote\n", len(remoteEKSClusters))
 
 			if backupKubeconfig && fileExists(kubeconfigPath) {
-				err := backupKubeConfig(kubeconfigPath)
+				bName, err := backupKubeConfig(kubeconfigPath)
 				if err != nil {
 					return err
 				}
+				cmd.Printf("Backup kubeconfig to %v\n", bName)
 			}
 
 			err := internal.UpdateKubeconfig(remoteEKSClusters, kubeconfigPath, contextName{templateValue: alias})
