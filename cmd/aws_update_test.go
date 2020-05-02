@@ -35,3 +35,44 @@ func Test_generateBackupNameNoConflict(t *testing.T) {
 		t.Errorf("Backup name is %v, expected %v", bName, backupKubeconfigPath)
 	}
 }
+
+func Test_fileExistsDir(t *testing.T) {
+	dir, err := ioutil.TempDir("", "dir")
+	if err != nil {
+		t.Error(err.Error())
+	}
+	defer os.RemoveAll(dir)
+	if fileExists(dir) {
+		t.Errorf("Return true on dir %v", dir)
+	}
+}
+
+func Test_fileExistsMissing(t *testing.T) {
+	dir, err := ioutil.TempDir("", "dir")
+	if err != nil {
+		t.Error(err.Error())
+	}
+	defer os.RemoveAll(dir)
+	path := filepath.Join(dir, "missing")
+	if fileExists(dir) {
+		t.Errorf("Return true on missing file %v", path)
+	}
+}
+
+func Test_fileExistsFile(t *testing.T) {
+	dir, err := ioutil.TempDir("", "dir")
+	if err != nil {
+		t.Error(err.Error())
+	}
+	defer os.RemoveAll(dir)
+
+	path := filepath.Join(dir, "kubeconfig")
+
+	if err := ioutil.WriteFile(path, []byte("...\n"), 0666); err != nil {
+		t.Error(err.Error())
+	}
+
+	if !fileExists(path) {
+		t.Errorf("Return false on file %v", path)
+	}
+}
