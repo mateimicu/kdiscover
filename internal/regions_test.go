@@ -6,6 +6,7 @@ import (
 )
 
 func TestContains(t *testing.T) {
+	t.Parallel()
 	tts := []struct {
 		key      string
 		list     []string
