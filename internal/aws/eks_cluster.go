@@ -1,5 +1,5 @@
 // Package internal provides function for working with EKS cluseters
-package internal
+package aws
 
 import (
 	"encoding/base64"
@@ -10,10 +10,11 @@ import (
 	"github.com/aws/aws-sdk-go/aws"
 	"github.com/aws/aws-sdk-go/aws/awserr"
 	"github.com/aws/aws-sdk-go/service/eks"
+	"github.com/mateimicu/kdiscover/internal/cluster"
 	log "github.com/sirupsen/logrus"
 )
 
-func getNewCluster(clsName string, svc *eks.EKS) (Cluster, error) {
+func getNewCluster(clsName string, svc *eks.EKS) (cluster.Cluster, error) {
 	input := &eks.DescribeClusterInput{
 		Name: aws.String(clsName),
 	}
@@ -27,7 +28,7 @@ func getNewCluster(clsName string, svc *eks.EKS) (Cluster, error) {
 		}
 		msg := fmt.Sprintf("Can't fetch more details for the cluster %v", clsName)
 		log.Warn(msg)
-		return Cluster{}, errors.New(msg)
+		return cluster.Cluster{}, errors.New(msg)
 	}
 	certificatAuthorityData, err := base64.StdEncoding.DecodeString(*result.Cluster.CertificateAuthority.Data)
 	if err != nil {
@@ -38,7 +39,7 @@ func getNewCluster(clsName string, svc *eks.EKS) (Cluster, error) {
 		}).Error("Can't decode the Certificate Authority Data")
 	}
 
-	return Cluster{
+	return cluster.Cluster{
 		Name:                     *result.Cluster.Name,
 		Id:                       *result.Cluster.Arn,
 		Endpoint:                 *result.Cluster.Endpoint,
@@ -47,7 +48,7 @@ func getNewCluster(clsName string, svc *eks.EKS) (Cluster, error) {
 	}, nil
 }
 
-func getEKSClustersPerRegion(region string, ch chan<- Cluster, wg *sync.WaitGroup) {
+func getEKSClustersPerRegion(region string, ch chan<- cluster.Cluster, wg *sync.WaitGroup) {
 	sess, err := getAWSSession(region)
 	if err != nil {
 		log.WithFields(log.Fields{
@@ -90,11 +91,11 @@ func getEKSClustersPerRegion(region string, ch chan<- Cluster, wg *sync.WaitGrou
 // GetEKSClusters will query the given regions and return a list of
 // clusters accesable. It will use the default credential chain for AWS
 // in order to figure out the context for the API calls
-func GetEKSClusters(regions []string) []Cluster {
-	var clusters []Cluster = make([]Cluster, 0, len(regions))
+func GetEKSClusters(regions []string) []cluster.Cluster {
+	var clusters []cluster.Cluster = make([]cluster.Cluster, 0, len(regions))
 
 	var wg sync.WaitGroup
-	ch := make(chan Cluster)
+	ch := make(chan cluster.Cluster)
 
 	for _, region := range regions {
 		log.WithFields(log.Fields{

@@ -4,7 +4,8 @@ package cmd
 import (
 	"fmt"
 
-	"github.com/mateimicu/kdiscover/internal"
+	"github.com/mateimicu/kdiscover/internal/aws"
+	"github.com/mateimicu/kdiscover/internal/kubeconfig"
 	"github.com/spf13/cobra"
 
 	log "github.com/sirupsen/logrus"
@@ -37,7 +38,7 @@ func newAWSCommand() *cobra.Command {
 				"partitions": awsPartitions,
 			}).Debug("Search regions for partitions")
 
-			awsRegions = internal.GetRegions(awsPartitions)
+			awsRegions = aws.GetRegions(awsPartitions)
 
 			if len(awsRegions) == 0 {
 				log.WithFields(log.Fields{
@@ -61,12 +62,12 @@ func newAWSCommand() *cobra.Command {
 		&awsPartitions,
 		"aws-partitions",
 		[]string{"aws"},
-		fmt.Sprintf("In what partitions to search for clusters. Supported %v", internal.AllowedParitions()))
+		fmt.Sprintf("In what partitions to search for clusters. Supported %v", aws.AllowedParitions()))
 
 	AWSCommand.PersistentFlags().StringVar(
 		&kubeconfigPath,
 		"kubeconfig-path",
-		internal.GetDefaultKubeconfigPath(),
+		kubeconfig.GetDefaultKubeconfigPath(),
 		"Path to the kubeconfig to work with")
 
 	AWSCommand.AddCommand(newListCommand(), newUpdateCommand())

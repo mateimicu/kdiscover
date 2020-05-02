@@ -1,4 +1,4 @@
-package internal
+package aws
 
 import (
 	"fmt"

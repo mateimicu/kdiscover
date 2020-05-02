@@ -1,5 +1,5 @@
 // Package internal provides wrapper for creating aws sessions
-package internal
+package aws
 
 import (
 	"github.com/aws/aws-sdk-go/aws"
