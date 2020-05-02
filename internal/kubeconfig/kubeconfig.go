@@ -44,10 +44,9 @@ func (k *Kubeconfig) Persist(path string) error {
 	return nil
 }
 
-func (k *Kubeconfig) AddCluster(cls cluster.Cluster, ctxName string) {
-	authType := getAuthType()
-	key := cls.Id
-	k.cfg.AuthInfos[key] = getConfigAuthInfo(cls, authType)
+func (k *Kubeconfig) AddCluster(cls ClusterExporter, ctxName string) {
+	key := cls.GetUniqueId()
+	k.cfg.AuthInfos[key] = cls.GetConfigAuthInfo()
 	k.cfg.Clusters[key] = cls.GetConfigCluster()
 	k.cfg.Contexts[ctxName] = getConfigContext(key)
 }
@@ -74,15 +73,19 @@ func (k *Kubeconfig) GetClusters() (map[string]cluster.Cluster, error) {
 	return clusters, nil
 }
 
+type Endpointer interface {
+	GetEndpoint() string
+}
+
 // IsExported will check if the cluster is already exporter
 // in the kubeconfig file
 // We consider a cluster "exported" if we have:
 // * a `cluster` with the same Endpoint
 // * a context for the cluster
-func (k *Kubeconfig) IsExported(cls *cluster.Cluster) bool {
+func (k *Kubeconfig) IsExported(cls Endpointer) bool {
 	for _, ctx := range k.cfg.Contexts {
 		if cluster, ok := k.cfg.Clusters[ctx.Cluster]; ok {
-			if cluster.Server == cls.Endpoint {
+			if cluster.Server == cls.GetEndpoint() {
 				return true
 			}
 		}

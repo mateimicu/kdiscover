@@ -7,11 +7,12 @@ import (
 	"testing"
 
 	"github.com/mateimicu/kdiscover/internal/cluster"
+	"github.com/mateimicu/kdiscover/internal/kubeconfig"
 )
 
 type mockExportable struct{}
 
-func (_ mockExportable) IsExported(cls *cluster.Cluster) bool {
+func (_ mockExportable) IsExported(cls kubeconfig.Endpointer) bool {
 	return false
 }
 
@@ -27,7 +28,11 @@ func Test_getTable(t *testing.T) {
 	for _, tt := range tts {
 		testname := fmt.Sprintf("Clusters %v", tt.clusters)
 		t.Run(testname, func(t *testing.T) {
-			r := getTable(tt.clusters, mockExportable{})
+			clusters := make([]clusterDescribe, len(tt.clusters))
+			for i, c := range tt.clusters {
+				clusters[i] = clusterDescribe(&c)
+			}
+			r := getTable(clusters, mockExportable{})
 			if !strings.Contains(r, fmt.Sprintf("%v", len(tt.clusters))) {
 				t.Errorf("Expected %v in output, but got %v", len(tt.clusters), r)
 			}
