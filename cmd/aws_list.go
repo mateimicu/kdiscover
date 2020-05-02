@@ -71,7 +71,7 @@ func newListCommand() *cobra.Command {
 			}
 			clusters := make([]clusterDescribe, len(remoteEKSClusters))
 			for i, c := range remoteEKSClusters {
-				clusters[i] = clusterDescribe(&c)
+				clusters[i] = clusterDescribe(c)
 			}
 			cmd.Println(getTable(clusters, k))
 			return nil

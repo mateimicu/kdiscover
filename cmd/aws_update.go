@@ -71,7 +71,7 @@ func newUpdateCommand() *cobra.Command {
 					}).Info("Can't generate alias for the cluster")
 					continue
 				}
-				kubeconfig.AddCluster(&cls, ctxName)
+				kubeconfig.AddCluster(cls, ctxName)
 			}
 			return nil
 		},
