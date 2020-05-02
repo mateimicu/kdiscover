@@ -5,23 +5,36 @@ import (
 	"github.com/jedib0t/go-pretty/table"
 	"github.com/jedib0t/go-pretty/text"
 	"github.com/mateimicu/kdiscover/internal/aws"
-	"github.com/mateimicu/kdiscover/internal/cluster"
 	"github.com/mateimicu/kdiscover/internal/kubeconfig"
 	log "github.com/sirupsen/logrus"
 	"github.com/spf13/cobra"
 )
 
-type exportable interface {
-	IsExported(cls *cluster.Cluster) bool
+type clusterDescribe interface {
+	GetEndpoint() string
+	GetName() string
+	GetRegion() string
+	GetStatus() string
 }
 
-func getTable(clusters []cluster.Cluster, e exportable) string {
+type exportable interface {
+	IsExported(cls kubeconfig.Endpointer) bool
+}
+
+func getExportedString(e exportable, cls kubeconfig.Endpointer) string {
+	if e.IsExported(cls) {
+		return "Yes"
+	}
+	return "No"
+}
+
+func getTable(clusters []clusterDescribe, e exportable) string {
 	tw := table.NewWriter()
 	tw.AppendHeader(table.Row{"Cluster Name", "Region", "Status", "Exported Locally"})
 	rows := []table.Row{}
 	for _, cls := range clusters {
 		//rows = append(rows, table.Row{cls.Name, cls.Region, cls.Status, "No"})
-		rows = append(rows, table.Row{cls.Name, cls.Region, cls.Status, getExportedString(e, &cls)})
+		rows = append(rows, table.Row{cls.GetName(), cls.GetRegion(), cls.GetStatus(), getExportedString(e, cls)})
 	}
 	tw.AppendRows(rows)
 
@@ -45,13 +58,6 @@ func getTable(clusters []cluster.Cluster, e exportable) string {
 	return tw.Render()
 }
 
-func getExportedString(e exportable, cls *cluster.Cluster) string {
-	if e.IsExported(cls) {
-		return "Yes"
-	}
-	return "No"
-}
-
 func newListCommand() *cobra.Command {
 	listCommand := &cobra.Command{
 		Use:   "list",
@@ -63,7 +69,11 @@ func newListCommand() *cobra.Command {
 			if err != nil {
 				return err
 			}
-			cmd.Println(getTable(remoteEKSClusters, k))
+			clusters := make([]clusterDescribe, len(remoteEKSClusters))
+			for i, c := range remoteEKSClusters {
+				clusters[i] = clusterDescribe(&c)
+			}
+			cmd.Println(getTable(clusters, k))
 			return nil
 		},
 	}

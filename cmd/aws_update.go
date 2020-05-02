@@ -56,9 +56,22 @@ func newUpdateCommand() *cobra.Command {
 				}
 				cmd.Printf("Backup kubeconfig to %v\n", bName)
 			}
-			err := kubeconfig.UpdateKubeconfig(remoteEKSClusters, kubeconfigPath, contextName{templateValue: alias})
+			kubeconfig, err := kubeconfig.LoadKubeconfig(kubeconfigPath)
+			return nil
 			if err != nil {
 				return err
+			}
+
+			for _, cls := range remoteEKSClusters {
+				ctxName, err := cls.GetContextName(alias)
+				if err != nil {
+					log.WithFields(log.Fields{
+						"cluster": cls,
+						"error":   err,
+					}).Info("Can't generate alias for the cluster")
+					continue
+				}
+				kubeconfig.AddCluster(&cls, ctxName)
 			}
 			return nil
 		},
@@ -74,12 +87,8 @@ func newUpdateCommand() *cobra.Command {
 	return updateCommand
 }
 
-type contextName struct {
-	templateValue string
-}
-
-func (c contextName) GetContextName(cls cluster.Cluster) (string, error) {
-	tmpl, err := template.New("context-name").Parse(c.templateValue)
+func GetContextName(cls cluster.Cluster, templateValue string) (string, error) {
+	tmpl, err := template.New("context-name").Parse(templateValue)
 	if err != nil {
 		return "", err
 	}
