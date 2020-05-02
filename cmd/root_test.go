@@ -88,3 +88,11 @@ func Test_HelpFunction(t *testing.T) {
 		})
 	}
 }
+
+func Test_getAllLogglingLevels(t *testing.T) {
+	for _, lvl := range getAllLogglingLevels() {
+		if _, ok := loggingLevels[lvl]; !ok {
+			t.Errorf("Loging level %v not found in map", lvl)
+		}
+	}
+}
