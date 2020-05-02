@@ -13,17 +13,6 @@ import (
 	log "github.com/sirupsen/logrus"
 )
 
-// Cluster is the representation of a K8S Cluster
-// For now it is tailored to AWS, more specifically eks clusters
-type Cluster struct {
-	Name                     string
-	Region                   string
-	Arn                      string
-	Endpoint                 string
-	CertificateAuthorityData string
-	Status                   string
-}
-
 func getNewCluster(clsName string, svc *eks.EKS) (Cluster, error) {
 	input := &eks.DescribeClusterInput{
 		Name: aws.String(clsName),
@@ -51,7 +40,7 @@ func getNewCluster(clsName string, svc *eks.EKS) (Cluster, error) {
 
 	return Cluster{
 		Name:                     *result.Cluster.Name,
-		Arn:                      *result.Cluster.Arn,
+		Id:                       *result.Cluster.Arn,
 		Endpoint:                 *result.Cluster.Endpoint,
 		CertificateAuthorityData: string(certificatAuthorityData),
 		Status:                   *result.Cluster.Status,
