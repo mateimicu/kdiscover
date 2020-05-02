@@ -28,3 +28,14 @@ jobs:
       - name: Basic build of the project
         run: |
           go build main.go
+
+  test:
+    name: Go Test
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      - uses: actions/setup-go@v2
+      - name: Run Tests
+        run: |
+          go test -race -v -coverprofile=coverage.txt -covermode=atomic ./...
+      - uses: codecov/codecov-action@v1
