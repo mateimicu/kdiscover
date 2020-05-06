@@ -1,15 +1,12 @@
-// Package internal provides function for working with EKS cluseters
+// Package aws provides function for working with EKS cluseters
 package aws
 
 import (
 	"encoding/base64"
 	"errors"
 	"fmt"
-	"os/exec"
-	"regexp"
 	"sync"
 
-	"github.com/Masterminds/semver"
 	"github.com/aws/aws-sdk-go/aws"
 	"github.com/aws/aws-sdk-go/aws/awserr"
 	"github.com/aws/aws-sdk-go/service/eks"
@@ -19,26 +16,7 @@ import (
 )
 
 const (
-	useAWSCLI = iota
-	useIAMAuthenticator
-)
-
-const (
-	commandAWScli           = "aws"
-	commandIAMAuthenticator = "aws-iam-authenticator"
-	clientAPIVersion        = "client.authentication.k8s.io/v1alpha1"
-)
-
-var (
-	commands map[int]string = map[int]string{
-		useAWSCLI:           commandAWScli,
-		useIAMAuthenticator: commandIAMAuthenticator,
-	}
-
-	options map[int][]string = map[int][]string{
-		useAWSCLI:           {"eks", "get-token", "--cluster-name"},
-		useIAMAuthenticator: {"token", "-i"},
-	}
+	clientAPIVersion = "client.authentication.k8s.io/v1alpha1"
 )
 
 func getConfigAuthInfo(cls *cluster.Cluster) *clientcmdapi.AuthInfo {
@@ -156,45 +134,14 @@ func GetEKSClusters(regions []string) []*cluster.Cluster {
 		done <- struct{}{}
 	}(done, &wg)
 
-Loop:
+loop:
 	for {
 		select {
 		case cluster := <-ch:
 			clusters = append(clusters, cluster)
 		case <-done:
-			break Loop
+			break loop
 		}
 	}
 	return clusters
-}
-
-func getAuthType() int {
-	// According to the docs the first version that supports this is 1.18.17
-	// See: https://docs.aws.amazon.com/eks/latest/userguide/create-kubeconfig.html
-	// but looking at the source code the get token is present from 1.16.266
-	// See: https://github.com/aws/aws-cli/commits/develop/awscli/customizations/eks/get_token.py
-	pivotVersion, _ := semver.NewVersion("1.16.266")
-	currentVersion := getAWSCLIversion()
-	if currentVersion.LessThan(pivotVersion) {
-		return useIAMAuthenticator
-	}
-	return useAWSCLI
-}
-
-func getAWSCLIversion() *semver.Version {
-	v, _ := semver.NewVersion("0.0.0")
-	command := exec.Command("aws", "--version")
-	out, err := command.Output()
-	if err != nil {
-		log.Warn("Can't get aws cli tool version")
-		return v
-	}
-	r := regexp.MustCompile(`aws-cli\/(?P<version>[0-9]+\.[0-9]+\.[0-9]+)`)
-	if match := r.FindStringSubmatch(string(out)); len(match) != 0 {
-		v, _ = semver.NewVersion(match[1])
-		log.WithFields(log.Fields{
-			"version": v,
-		}).Info("Found AWS CLI version")
-	}
-	return v
 }
