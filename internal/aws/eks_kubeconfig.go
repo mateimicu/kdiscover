@@ -50,7 +50,7 @@ func getAuthType() AuthType {
 
 func getAWSCLIversion(cmd []string) *semver.Version {
 	v, _ := semver.NewVersion("0.0.0")
-	command := exec.Command(cmd[0], cmd[1:]...)
+	command := exec.Command(cmd[0], cmd[1:]...) //nolint:gosec
 	out, err := command.Output()
 	if err != nil {
 		log.Warn("Can't get aws cli tool version")

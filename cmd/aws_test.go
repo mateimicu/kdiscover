@@ -24,7 +24,6 @@ func TestQueryAllRegions(t *testing.T) {
 		{[]string{"aws", "list"}, []string{"aws", "aws-cn"}},
 		{[]string{"aws", "list"}, []string{"aws-us-gov", "aws-iso", "aws-iso-b"}},
 		{[]string{"aws", "list"}, []string{"aws", "aws-cn", "aws-us-gov", "aws-iso", "aws-iso-b"}},
-
 		{[]string{"aws", "update"}, []string{"aws"}},
 		{[]string{"aws", "update"}, []string{"aws-cn"}},
 		{[]string{"aws", "update"}, []string{"aws-iso-b"}},
@@ -36,7 +35,6 @@ func TestQueryAllRegions(t *testing.T) {
 		testname := fmt.Sprintf("command %v", tt.Partitions)
 		t.Run(testname, func(t *testing.T) {
 			cmd := NewRootCommand()
-
 			buf := new(strings.Builder)
 			cmd.SetOut(buf)
 			cmd.SetErr(buf)
@@ -46,7 +44,6 @@ func TestQueryAllRegions(t *testing.T) {
 			}()
 			hook := test.NewGlobal()
 			defer hook.Reset()
-
 			args := append(tt.Cmd, []string{
 				"--log-level",
 				"debug",
