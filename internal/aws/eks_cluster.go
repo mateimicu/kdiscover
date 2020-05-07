@@ -2,14 +2,8 @@
 package aws
 
 import (
-	"encoding/base64"
-	"errors"
-	"fmt"
 	"sync"
 
-	"github.com/aws/aws-sdk-go/aws"
-	"github.com/aws/aws-sdk-go/aws/awserr"
-	"github.com/aws/aws-sdk-go/service/eks"
 	"github.com/mateimicu/kdiscover/internal/cluster"
 	log "github.com/sirupsen/logrus"
 	clientcmdapi "k8s.io/client-go/tools/clientcmd/api"
@@ -24,8 +18,7 @@ func getConfigAuthInfo(cls *cluster.Cluster) *clientcmdapi.AuthInfo {
 	authInfo := clientcmdapi.NewAuthInfo()
 	args := make([]string, len(options[authType]))
 	copy(args, options[authType])
-	args = append(args, cls.Name)
-	args = append(args, "--region", cls.Region)
+	args = append(args, cls.Name, "--region", cls.Region)
 
 	authInfo.Exec = &clientcmdapi.ExecConfig{
 		Command:    commands[authType],
@@ -34,114 +27,65 @@ func getConfigAuthInfo(cls *cluster.Cluster) *clientcmdapi.AuthInfo {
 	return authInfo
 }
 
-func getNewCluster(clsName string, svc *eks.EKS) (*cluster.Cluster, error) {
-	input := &eks.DescribeClusterInput{
-		Name: aws.String(clsName),
-	}
-
-	result, err := svc.DescribeCluster(input)
-	if err != nil {
-		if aerr, ok := err.(awserr.Error); ok {
-			log.Warn(aerr.Error())
-		} else {
-			log.Warn(err.Error())
-		}
-		msg := fmt.Sprintf("Can't fetch more details for the cluster %v", clsName)
-		log.Warn(msg)
-		return &cluster.Cluster{}, errors.New(msg)
-	}
-	certificatAuthorityData, err := base64.StdEncoding.DecodeString(*result.Cluster.CertificateAuthority.Data)
-	if err != nil {
-		log.WithFields(log.Fields{
-			"cluster-name":               *result.Cluster.Name,
-			"arn":                        *result.Cluster.Arn,
-			"certificate-authority-data": *result.Cluster.CertificateAuthority.Data,
-		}).Error("Can't decode the Certificate Authority Data")
-	}
-
-	cls := cluster.NewCluster()
-	cls.Name = *result.Cluster.Name
-	cls.ID = *result.Cluster.Arn
-	cls.Endpoint = *result.Cluster.Endpoint
-	cls.CertificateAuthorityData = string(certificatAuthorityData)
-	cls.Status = *result.Cluster.Status
-	cls.GenerateAuthInfo = getConfigAuthInfo
-
-	return cls, nil
+type ClusterGetter interface {
+	GetClusters(ch chan<- *cluster.Cluster)
 }
 
-func getEKSClustersPerRegion(region string, ch chan<- *cluster.Cluster, wg *sync.WaitGroup) {
-	sess, err := getAWSSession(region)
-	if err != nil {
+func GetEKSClusters(regions []string) []*cluster.Cluster {
+	clients := make([]ClusterGetter, 0, len(regions))
+
+	for _, region := range regions {
 		log.WithFields(log.Fields{
 			"region": region,
-			"error":  err.Error(),
-		}).Error("Failed to create AWS SDK session")
+		}).Info("Initialize client")
+		eks, err := NewEKS(region)
+		if err != nil {
+			log.WithFields(log.Fields{
+				"region": region,
+				"error":  err.Error(),
+			}).Error("Failed to create AWS SDK session")
+			continue
+		}
+
+		clients = append(clients, ClusterGetter(eks))
 	}
-	svc := getEKSClient(sess)
-
-	input := &eks.ListClustersInput{}
-
-	err = svc.ListClustersPages(input,
-		func(page *eks.ListClustersOutput, lastPage bool) bool {
-			for _, cluster := range page.Clusters {
-				log.WithFields(log.Fields{
-					"region":  region,
-					"cluster": cluster,
-					"page":    page,
-				}).Debug("Found cluster")
-				if cls, ok := getNewCluster(*cluster, svc); ok == nil {
-					cls.Region = region
-					ch <- cls
-				}
-			}
-			if lastPage {
-				log.Debug("hit last page")
-				return false
-			}
-			return true
-		})
-
-	if err != nil {
-		log.WithFields(log.Fields{
-			"err": err,
-		}).Warn("Can't list clusters")
-	}
-	wg.Done()
+	return getEKSClusters(clients)
 }
 
 // GetEKSClusters will query the given regions and return a list of
 // clusters accesable. It will use the default credential chain for AWS
 // in order to figure out the context for the API calls
-func GetEKSClusters(regions []string) []*cluster.Cluster {
-	clusters := make([]*cluster.Cluster, 0, len(regions))
-
-	var wg sync.WaitGroup
+func getEKSClusters(clients []ClusterGetter) []*cluster.Cluster {
+	clusters := make([]*cluster.Cluster, 0, len(clients))
 	ch := make(chan *cluster.Cluster)
 
-	for _, region := range regions {
-		log.WithFields(log.Fields{
-			"region": region,
-		}).Info("Query clusters")
+	var wg sync.WaitGroup
+	wg.Add(len(clients))
 
-		wg.Add(1)
-		go getEKSClustersPerRegion(region, ch, &wg)
+	for _, c := range clients {
+		regionCh := make(chan *cluster.Cluster)
+		go c.GetClusters(regionCh)
+
+		// fan-in from all the regions to one output channel
+		go func(out chan<- *cluster.Cluster, wg *sync.WaitGroup) {
+			for cls := range regionCh {
+				out <- cls
+			}
+			wg.Done()
+		}(ch, &wg)
 	}
 
-	done := make(chan struct{})
-	go func(done chan<- struct{}, wg *sync.WaitGroup) {
+	// close the channel when all regions have finished the querys
+	go func(wg *sync.WaitGroup, out chan<- *cluster.Cluster) {
+		defer close(out)
 		wg.Wait()
-		done <- struct{}{}
-	}(done, &wg)
+	}(&wg, ch)
 
-loop:
-	for {
-		select {
-		case cluster := <-ch:
-			clusters = append(clusters, cluster)
-		case <-done:
-			break loop
-		}
+	for cluster := range ch {
+		// add EKS specific auth config
+		cluster.GenerateAuthInfo = getConfigAuthInfo
+		clusters = append(clusters, cluster)
 	}
+
 	return clusters
 }
