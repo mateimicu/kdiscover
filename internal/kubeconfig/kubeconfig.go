@@ -44,7 +44,7 @@ func (k *Kubeconfig) Persist(path string) error {
 	if err != nil {
 		return err
 	}
-	err = ioutil.WriteFile(path, output, 0644)
+	err = ioutil.WriteFile(path, output, 0600)
 	if err != nil {
 		return err
 	}
