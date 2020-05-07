@@ -11,6 +11,7 @@ require (
 	github.com/mattn/go-runewidth v0.0.9 // indirect
 	github.com/sirupsen/logrus v1.2.0
 	github.com/spf13/cobra v0.0.6
+	github.com/stretchr/testify v1.5.1
 	google.golang.org/genproto v0.0.0-20190418145605-e7d98fc518a7
 	gopkg.in/yaml.v2 v2.2.8
 	k8s.io/client-go v0.18.2
