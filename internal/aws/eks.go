@@ -24,6 +24,9 @@ func (c *EKSClient) String() string {
 	return fmt.Sprintf("EKS Client for region %v", c.Region)
 }
 
+// TODO(mmicu):
+// - test GetClusters function
+// - use assert library in others tests also
 func (c *EKSClient) GetClusters(ch chan<- *cluster.Cluster) {
 	input := &eks.ListClustersInput{}
 
