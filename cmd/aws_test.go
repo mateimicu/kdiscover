@@ -20,6 +20,7 @@ type testCase struct {
 }
 
 var cases []testCase = []testCase{
+	{[]string{"aws", "list"}, []string{}},
 	{[]string{"aws", "list"}, []string{"aws"}},
 	{[]string{"aws", "list"}, []string{"aws-cn"}},
 	{[]string{"aws", "list"}, []string{"aws-iso-b"}},
