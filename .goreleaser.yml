@@ -1,0 +1,29 @@
+project_name: kdiscover
+
+before:
+  hooks:
+  - go mod download
+
+builds:
+  goos:
+    - windows
+    - linux
+    - darwin
+
+archives:
+  name_template: "{{ .ProjectName }}_{{ .Version }}_{{ .Os }}_{{ .Arch }}"
+
+  format_overrides:
+    - goos: windows
+      format: zip
+source:
+  enabled: true
+
+release:
+  # If set to true, will not auto-publish the release.
+  # TODO(mmicu): disable this after a few tests
+  draft: true
+  prerelease: auto
+
+changelog:
+  skip: false
