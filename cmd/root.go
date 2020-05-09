@@ -6,7 +6,7 @@ import (
 	"io/ioutil"
 	"os"
 
-	"github.com/mateimicu/kdiscover/internal"
+	"github.com/mateimicu/kdiscover/internal/kubeconfig"
 	"github.com/spf13/cobra"
 
 	log "github.com/sirupsen/logrus"
@@ -48,7 +48,7 @@ It will try to upgrade the kube-config for each cluster.`,
 				return nil
 			}
 
-			return fmt.Errorf("Can't find logging level %v", logLevel)
+			return fmt.Errorf("can't find logging level %v", logLevel)
 		},
 
 		RunE: func(cmd *cobra.Command, args []string) error {
@@ -57,12 +57,16 @@ It will try to upgrade the kube-config for each cluster.`,
 		},
 	}
 
-	rootCmd.PersistentFlags().StringVar(&logLevel, "log-level", "none", fmt.Sprintf("Set logging lvl. Supported %v", getAllLogglingLevels()))
+	rootCmd.PersistentFlags().StringVar(
+		&logLevel,
+		"log-level",
+		"none",
+		fmt.Sprintf("Set logging lvl. Supported %v", getAllLogglingLevels()))
 
 	rootCmd.PersistentFlags().StringVar(
 		&kubeconfigPath,
 		"kubeconfig-path",
-		internal.GetDefaultKubeconfigPath(),
+		kubeconfig.GetDefaultKubeconfigPath(),
 		"Path to the kubeconfig to work with")
 
 	rootCmd.AddCommand(newAWSCommand())

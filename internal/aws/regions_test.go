@@ -1,10 +1,11 @@
-package internal
+package aws
 
 import (
 	"fmt"
-	"reflect"
 	"sort"
 	"testing"
+
+	"github.com/stretchr/testify/assert"
 )
 
 func TestContains(t *testing.T) {
@@ -23,9 +24,7 @@ func TestContains(t *testing.T) {
 		testname := fmt.Sprintf("%v in %v", tt.key, tt.list)
 		t.Run(testname, func(t *testing.T) {
 			result := contains(tt.key, tt.list)
-			if result != tt.expected {
-				t.Errorf("contains of %v in %v is incorrect, got: %v, want: %v.", tt.key, tt.list, result, tt.expected)
-			}
+			assert.Equal(t, result, tt.expected)
 		})
 	}
 }
@@ -49,9 +48,7 @@ func TestGetRegions(t *testing.T) {
 			// compute partial result
 			partialResult := make([]string, 0)
 			for _, partition := range tt.partitions {
-				for _, v := range GetRegions([]string{partition}) {
-					partialResult = append(partialResult, v)
-				}
+				partialResult = append(partialResult, GetRegions([]string{partition})...)
 			}
 
 			sort.Strings(totalResult)
@@ -59,9 +56,7 @@ func TestGetRegions(t *testing.T) {
 			if len(partialResult) == 0 && len(totalResult) == 0 {
 				return
 			}
-			if !reflect.DeepEqual(partialResult, totalResult) {
-				t.Errorf("Step by Stept we got %v but asking for all we got %v", partialResult, totalResult)
-			}
+			assert.Equal(t, partialResult, totalResult)
 		})
 	}
 }

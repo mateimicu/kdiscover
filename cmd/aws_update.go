@@ -2,15 +2,14 @@
 package cmd
 
 import (
-	"bytes"
 	"fmt"
-	"html/template"
 	"io"
 	"os"
 	"path"
 	"path/filepath"
 
-	"github.com/mateimicu/kdiscover/internal"
+	"github.com/mateimicu/kdiscover/internal/aws"
+	"github.com/mateimicu/kdiscover/internal/kubeconfig"
 	log "github.com/sirupsen/logrus"
 	"github.com/spf13/cobra"
 )
@@ -42,7 +41,7 @@ func newUpdateCommand() *cobra.Command {
 		RunE: func(cmd *cobra.Command, args []string) error {
 			cmd.Println(cmd.Short)
 
-			remoteEKSClusters := internal.GetEKSClusters(awsRegions)
+			remoteEKSClusters := aws.GetEKSClusters(awsRegions)
 			log.Info(remoteEKSClusters)
 
 			cmd.Printf("Found %v clusters remote\n", len(remoteEKSClusters))
@@ -54,10 +53,21 @@ func newUpdateCommand() *cobra.Command {
 				}
 				cmd.Printf("Backup kubeconfig to %v\n", bName)
 			}
-
-			err := internal.UpdateKubeconfig(remoteEKSClusters, kubeconfigPath, contextName{templateValue: alias})
+			kubeconfig, err := kubeconfig.LoadKubeconfig(kubeconfigPath)
 			if err != nil {
 				return err
+			}
+
+			for _, cls := range remoteEKSClusters {
+				ctxName, err := cls.PrettyName(alias)
+				if err != nil {
+					log.WithFields(log.Fields{
+						"cluster": cls,
+						"error":   err,
+					}).Info("Can't generate alias for the cluster")
+					continue
+				}
+				kubeconfig.AddCluster(cls, ctxName)
 			}
 			return nil
 		},
@@ -71,23 +81,6 @@ func newUpdateCommand() *cobra.Command {
 		"Template for the context name. Has acces to Cluster type")
 
 	return updateCommand
-}
-
-type contextName struct {
-	templateValue string
-}
-
-func (c contextName) GetContextName(cls internal.Cluster) (string, error) {
-	tmpl, err := template.New("context-name").Parse(c.templateValue)
-	if err != nil {
-		return "", err
-	}
-	var tpl bytes.Buffer
-	err = tmpl.Execute(&tpl, cls)
-	if err != nil {
-		return "", err
-	}
-	return tpl.String(), nil
 }
 
 func copy(src, dst string) error {

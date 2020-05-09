@@ -6,35 +6,29 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/mateimicu/kdiscover/internal"
+	"github.com/mateimicu/kdiscover/internal/cluster"
+	"github.com/mateimicu/kdiscover/internal/kubeconfig"
 )
 
-func getMockClusters(c int) []internal.Cluster {
-	d := make([]internal.Cluster, 0, c)
-	for i := 0; i < c; i++ {
-		d = append(d, internal.Cluster{
-			Name:   fmt.Sprintf("clucster-name-%v", i),
-			Region: fmt.Sprintf("clucster-region-%v", i),
-			Id:     fmt.Sprintf("clucster-id-%v", i),
-			Status: fmt.Sprintf("clucster-status-%v", i),
-		})
-	}
-	return d
+type mockExportable struct{}
+
+func (mockExportable) IsExported(cls kubeconfig.Endpointer) bool {
+	return false
 }
 
 // Test if the number of clusters is corectly diplayed
 func Test_getTable(t *testing.T) {
 	tts := []struct {
-		clusters []internal.Cluster
+		clusters []*cluster.Cluster
 	}{
-		{clusters: getMockClusters(0)},
-		{clusters: getMockClusters(1)},
-		{clusters: getMockClusters(3)},
+		{clusters: cluster.GetMockClusters(0)},
+		{clusters: cluster.GetMockClusters(1)},
+		{clusters: cluster.GetMockClusters(3)},
 	}
 	for _, tt := range tts {
 		testname := fmt.Sprintf("Clusters %v", tt.clusters)
 		t.Run(testname, func(t *testing.T) {
-			r := getTable(tt.clusters)
+			r := getTable(convertToInterfaces(tt.clusters), mockExportable{})
 			if !strings.Contains(r, fmt.Sprintf("%v", len(tt.clusters))) {
 				t.Errorf("Expected %v in output, but got %v", len(tt.clusters), r)
 			}
