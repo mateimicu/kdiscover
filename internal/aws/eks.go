@@ -10,13 +10,14 @@ import (
 	"github.com/aws/aws-sdk-go/aws/awserr"
 	"github.com/aws/aws-sdk-go/aws/session"
 	"github.com/aws/aws-sdk-go/service/eks"
+	"github.com/aws/aws-sdk-go/service/eks/eksiface"
 	"github.com/mateimicu/kdiscover/internal/cluster"
 	log "github.com/sirupsen/logrus"
 )
 
 //type ClusterListDescriber struct {
 type EKSClient struct {
-	EKS    *eks.EKS
+	EKS    eksiface.EKSAPI
 	Region string
 }
 

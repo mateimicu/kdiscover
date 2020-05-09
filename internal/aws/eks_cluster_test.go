@@ -3,7 +3,6 @@ package aws
 
 import (
 	"fmt"
-	"sort"
 	"testing"
 
 	"github.com/mateimicu/kdiscover/internal/cluster"
@@ -13,20 +12,6 @@ import (
 type fakeClusterGetter struct {
 	Region   string
 	Clusters []*cluster.Cluster
-}
-
-type sortedFakeClusterGetter []*cluster.Cluster
-
-func (s sortedFakeClusterGetter) Len() int {
-	return len(s)
-}
-
-func (s sortedFakeClusterGetter) Swap(i, j int) {
-	s[i], s[j] = s[j], s[i]
-}
-
-func (s sortedFakeClusterGetter) Less(i, j int) bool {
-	return s[i].ID < s[j].ID
 }
 
 func (c *fakeClusterGetter) GetClusters(ch chan<- *cluster.Cluster) {
@@ -105,11 +90,9 @@ func TestGetEKSClusters(t *testing.T) {
 				clients = append(clients, ClusterGetter(c))
 			}
 			allClusters := getAllClusters(tt.Clients)
-			sort.Sort(sortedFakeClusterGetter(allClusters))
 
 			r := getEKSClusters(clients)
-			sort.Sort(sortedFakeClusterGetter(r))
-			assert.Equal(t, r, allClusters)
+			assert.ElementsMatch(t, r, allClusters)
 		})
 	}
 }
