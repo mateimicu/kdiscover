@@ -5,17 +5,16 @@ before:
   - go mod download
 
 builds:
-  goos:
+  - goos:
     - windows
     - linux
     - darwin
 
 archives:
-  name_template: "{{ .ProjectName }}_{{ .Version }}_{{ .Os }}_{{ .Arch }}"
-
-  format_overrides:
-    - goos: windows
-      format: zip
+  - name_template: "{{ .ProjectName }}_{{ .Version }}_{{ .Os }}_{{ .Arch }}"
+    format_overrides:
+      - goos: windows
+        format: zip
 source:
   enabled: true
 
