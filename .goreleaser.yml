@@ -8,18 +8,12 @@ before:
   - go mod download
 
 builds:
-  - id: general
-    goos:
+  - goos:
     - windows
     - linux
+    - darwin
+    - freebsd
 
-  - id: macos
-    goos:
-      - darwin
-    goarch:
-      - amd64
-    hooks:
-      post: codesign -s C608BAF5BB825297A907F7F48E06D2028EE37E3F -f -v --timestamp --options runtime ./dist/macos_darwin_amd64/kdiscover
 
 archives:
   - format: zip
@@ -38,3 +32,25 @@ release:
 
 changelog:
   skip: false
+
+brews:
+  - github:
+      owner: mateimicu
+      name: homebrew-tap
+
+
+    commit_author:
+      name: goreleaserbot
+      email: goreleaser@mateimicu.com
+
+    folder: Formula
+
+    homepage: "https://example.com/"
+
+    description: "Utility for listing and exporting config for K8s Clusters"
+
+    test: |
+      system "#{bin}/kdiscover --version"
+
+    install: |
+      bin.install "program"
