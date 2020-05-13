@@ -25,10 +25,10 @@ builds:
 
 
 archives:
-  - format: zip
-    name_template: "{{ .ProjectName }}_{{ .Version }}_{{ .Os }}_{{ .Arch }}"
+  - name_template: "{{ .ProjectName }}_{{ .Version }}_{{ .Os }}_{{ .Arch }}"
     format_overrides:
       - goos: windows
+        format: zip
 
 source:
   enabled: true
@@ -46,20 +46,12 @@ brews:
   - github:
       owner: mateimicu
       name: homebrew-tap
-
-
     commit_author:
       name: goreleaserbot
       email: goreleaser@mateimicu.com
-
     folder: Formula
-
-    homepage: "https://example.com/"
-
     description: "Utility for listing and exporting config for K8s Clusters"
-
     test: |
       system "#{bin}/kdiscover --version"
-
     install: |
-      bin.install "golangci-lint"
+      bin.install "kdiscover"
