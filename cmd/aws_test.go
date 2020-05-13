@@ -45,7 +45,7 @@ func TestQueryAllRegions(t *testing.T) {
 			defer os.RemoveAll(dir)
 			kubeconfigPath := filepath.Join(dir, "kubeconfig")
 
-			cmd := NewRootCommand()
+			cmd := NewRootCommand("", "", "")
 			buf := new(strings.Builder)
 			cmd.SetOut(buf)
 			cmd.SetErr(buf)
