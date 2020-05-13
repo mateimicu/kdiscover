@@ -18,6 +18,7 @@ var basicCommands []struct{ cmd []string } = []struct {
 	{[]string{"aws"}},
 	{[]string{"aws", "list"}},
 	{[]string{"aws", "update"}},
+	{[]string{"version"}},
 }
 
 // Because cobra is not running PersistantPreRunE for all the commands
@@ -25,7 +26,6 @@ var basicCommands []struct{ cmd []string } = []struct {
 // with all the possible combination of commands in order to check that the logging hack work
 // An issue about this https://github.com/spf13/cobra/issues/252
 func Test_CascadingPersistPreRunEHackWithLoggingLevels(t *testing.T) {
-	t.Parallel()
 	for _, tt := range basicCommands {
 		for k, exp := range loggingLevels {
 			testname := fmt.Sprintf("command %v and logging lvl %v", tt.cmd, k)
@@ -37,7 +37,7 @@ func Test_CascadingPersistPreRunEHackWithLoggingLevels(t *testing.T) {
 				defer os.RemoveAll(dir)
 
 				kubeconfigPath := filepath.Join(dir, "kubeconfig")
-				cmd := NewRootCommand()
+				cmd := NewRootCommand("", "", "")
 				cmd.SetOut(ioutil.Discard)
 				cmd.SetErr(ioutil.Discard)
 
@@ -73,7 +73,7 @@ func Test_HelpFunction(t *testing.T) {
 	for _, tt := range basicCommands {
 		testname := fmt.Sprintf("command %v", tt.cmd)
 		t.Run(testname, func(t *testing.T) {
-			cmd := NewRootCommand()
+			cmd := NewRootCommand("", "", "")
 
 			buf := new(strings.Builder)
 			cmd.SetOut(buf)

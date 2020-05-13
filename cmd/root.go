@@ -29,7 +29,7 @@ var (
 	logLevel       string
 )
 
-func NewRootCommand() *cobra.Command {
+func NewRootCommand(version, commit, date string) *cobra.Command {
 	rootCmd := &cobra.Command{
 		Use:   "kdiscover",
 		Short: "Discover all EKS clusters on an account.",
@@ -70,12 +70,13 @@ It will try to upgrade the kube-config for each cluster.`,
 		"Path to the kubeconfig to work with")
 
 	rootCmd.AddCommand(newAWSCommand())
+	rootCmd.AddCommand(newVersionCommand(version, commit, date))
 	return rootCmd
 }
 
 // Execute will create the tree of commands and will start parsing and execution
-func Execute() {
-	rootCmd := NewRootCommand()
+func Execute(version, commit, date string) {
+	rootCmd := NewRootCommand(version, commit, date)
 
 	if err := rootCmd.Execute(); err != nil {
 		fmt.Println(err)
