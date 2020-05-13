@@ -34,9 +34,6 @@ source:
   enabled: true
 
 release:
-  # If set to true, will not auto-publish the release.
-  # TODO(mmicu): disable this after a few tests
-  draft: true
   prerelease: auto
 
 changelog:
