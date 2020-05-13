@@ -58,8 +58,6 @@ brews:
 
     description: "Utility for listing and exporting config for K8s Clusters"
 
-    skip_upload: true
-
     test: |
       system "#{bin}/kdiscover --version"
 
