@@ -13,8 +13,14 @@ const (
 	clientAPIVersion = "client.authentication.k8s.io/v1alpha1"
 )
 
-func getConfigAuthInfo(cls *cluster.Cluster) *clientcmdapi.AuthInfo {
-	authType := getAuthType()
+var (
+	options map[AuthType][]string = map[AuthType][]string{
+		useAWSCLI:           {"eks", "get-token", "--cluster-name"},
+		useIAMAuthenticator: {"token", "-i"},
+	}
+)
+
+func getConfigAuthInfo(cls *cluster.Cluster, authType AuthType) *clientcmdapi.AuthInfo {
 	authInfo := clientcmdapi.NewAuthInfo()
 	args := make([]string, len(options[authType]))
 	copy(args, options[authType])
@@ -81,10 +87,14 @@ func getEKSClusters(clients []ClusterGetter) []*cluster.Cluster {
 		wg.Wait()
 	}(&wg, ch)
 
-	for cluster := range ch {
+	authType := getAuthType()
+	for c := range ch {
 		// add EKS specific auth config
-		cluster.GenerateAuthInfo = getConfigAuthInfo
-		clusters = append(clusters, cluster)
+		// create a new function in order to cache authType
+		c.GenerateAuthInfo = func(cls *cluster.Cluster) *clientcmdapi.AuthInfo {
+			return getConfigAuthInfo(cls, authType)
+		}
+		clusters = append(clusters, c)
 	}
 
 	return clusters

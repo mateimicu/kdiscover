@@ -27,11 +27,6 @@ var (
 		useIAMAuthenticator: commandIAMAuthenticator,
 	}
 
-	options map[AuthType][]string = map[AuthType][]string{
-		useAWSCLI:           {"eks", "get-token", "--cluster-name"},
-		useIAMAuthenticator: {"token", "-i"},
-	}
-
 	awsCLIVersionCommand []string = []string{"aws", "--version"}
 )
 
