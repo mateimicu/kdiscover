@@ -69,8 +69,11 @@ func newUpdateCommand() *cobra.Command {
 				}
 				kubeconfig.AddCluster(cls, ctxName)
 			}
-			kubeconfig.Persist(kubeconfigPath)
-			return nil
+			err = kubeconfig.Persist(kubeconfigPath)
+			if err != nil {
+				cmd.Printf("Failed to persist kubeconfig %v", err.Error())
+			}
+			return err
 		},
 	}
 
