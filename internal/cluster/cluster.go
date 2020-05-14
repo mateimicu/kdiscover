@@ -39,7 +39,7 @@ func NewCluster() *Cluster {
 }
 
 func (cls *Cluster) GetUniqueID() string {
-	return fmt.Sprintf("%v-%v-%v-%v", cls.Provider, cls.ID, cls.Region, cls.Name)
+	return fmt.Sprintf("id-%v-%v-%v-%v", cls.Provider, cls.ID, cls.Region, cls.Name)
 }
 
 func defaultGenerateClusterConfig(cls *Cluster) *clientcmdapi.Cluster {

@@ -69,6 +69,7 @@ func newUpdateCommand() *cobra.Command {
 				}
 				kubeconfig.AddCluster(cls, ctxName)
 			}
+			kubeconfig.Persist(kubeconfigPath)
 			return nil
 		},
 	}

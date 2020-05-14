@@ -2,11 +2,9 @@
 package kubeconfig
 
 import (
-	"io/ioutil"
 	"os"
 
 	cluster "github.com/mateimicu/kdiscover/internal/cluster"
-	"gopkg.in/yaml.v2"
 	"k8s.io/client-go/tools/clientcmd"
 	clientcmdapi "k8s.io/client-go/tools/clientcmd/api"
 )
@@ -40,15 +38,7 @@ func LoadKubeconfig(kubeconfigpath string) (*Kubeconfig, error) {
 
 // Persist the kubeconfig to the disk
 func (k *Kubeconfig) Persist(path string) error {
-	output, err := yaml.Marshal(k.cfg)
-	if err != nil {
-		return err
-	}
-	err = ioutil.WriteFile(path, output, 0600)
-	if err != nil {
-		return err
-	}
-	return nil
+	return clientcmd.WriteToFile(*k.cfg, path)
 }
 
 func (k *Kubeconfig) AddCluster(cls ClusterExporter, ctxName string) {
