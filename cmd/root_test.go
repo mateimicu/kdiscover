@@ -2,6 +2,7 @@
 package cmd
 
 import (
+	"flag"
 	"fmt"
 	"io/ioutil"
 	"os"
@@ -11,6 +12,8 @@ import (
 
 	log "github.com/sirupsen/logrus"
 )
+
+var update = flag.Bool("update", false, "update .golden files")
 
 var basicCommands []struct{ cmd []string } = []struct {
 	cmd []string

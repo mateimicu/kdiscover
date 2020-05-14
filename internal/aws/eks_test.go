@@ -3,6 +3,7 @@ package aws
 
 import (
 	"encoding/base64"
+	"flag"
 	"fmt"
 	"io/ioutil"
 	"testing"
@@ -13,6 +14,8 @@ import (
 	log "github.com/sirupsen/logrus"
 	"github.com/stretchr/testify/assert"
 )
+
+var update = flag.Bool("update", false, "update .golden files")
 
 type mockEKSClient struct {
 	eksiface.EKSAPI

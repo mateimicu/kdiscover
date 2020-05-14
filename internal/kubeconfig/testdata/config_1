@@ -1,0 +1,50 @@
+apiVersion: v1
+clusters:
+- cluster:
+    certificate-authority-data: dGVzdC1jbHVzdGVyLTEK
+    server: https://test-cluster-1.examoke
+  name: test-cluster-1
+- cluster:
+    certificate-authority-data: dGVzdC1jbHVzdGVyLTIK
+    server: https://test-cluster-2.examoke
+  name: test-cluster-2
+contexts:
+- context:
+    cluster: test-cluster-1
+    user: test-cluster-1
+  name: test-cluster-1
+- context:
+    cluster: test-cluster-2
+    user: test-cluster-2
+  name: test-cluster-2
+current-context: test-cluster-1
+kind: Config
+preferences: {}
+users:
+- name: test-cluster-1
+  user:
+    exec:
+      apiVersion: client.authentication.k8s.io/v1alpha1
+      args:
+      - eks
+      - get-token
+      - --cluster-name
+      - test-cluster-1
+      - --region
+      - eu-central-1
+      command: aws
+      env: null
+users:
+- name: test-cluster-2
+  user:
+    exec:
+      apiVersion: client.authentication.k8s.io/v1alpha1
+      args:
+      - eks
+      - get-token
+      - --cluster-name
+      - test-cluster-1
+      - --region
+      - eu-central-2
+      command: aws
+      env: null

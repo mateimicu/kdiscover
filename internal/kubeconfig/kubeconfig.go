@@ -36,6 +36,12 @@ func LoadKubeconfig(kubeconfigpath string) (*Kubeconfig, error) {
 	}, nil
 }
 
+func New() *Kubeconfig {
+	return &Kubeconfig{
+		cfg: clientcmdapi.NewConfig(),
+	}
+}
+
 // Persist the kubeconfig to the disk
 func (k *Kubeconfig) Persist(path string) error {
 	return clientcmd.WriteToFile(*k.cfg, path)
