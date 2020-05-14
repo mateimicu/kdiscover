@@ -12,6 +12,7 @@ The basic usecase revolves in havin access to a lot of clusters but you still ne
 Currently we suport only EKS clusters but there are plans to support othe k8s providers (GKE, AKE, etc ...)
 
 - [kdiscover](#kdiscover)
+  - [Example](#example)
   - [Demo](#demo)
   - [Install](#install)
     - [Binary](#binary)
@@ -22,6 +23,11 @@ Currently we suport only EKS clusters but there are plans to support othe k8s pr
 
 
 ## Demo
+
+[![asciicast](https://asciinema.org/a/qfxDubtATYtLJ1W1vOK6rBzSE.svg)](https://asciinema.org/a/qfxDubtATYtLJ1W1vOK6rBzSE)
+
+
+## Example
 
 ```bash
 ~ $ kdiscover aws list
