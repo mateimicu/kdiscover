@@ -16,6 +16,7 @@ type clusterDescribe interface {
 	GetName() string
 	GetRegion() string
 	GetStatus() string
+	PrettyName(templateValue string) (string, error)
 }
 
 type exportable interface {
@@ -37,12 +38,20 @@ func convertToInterfaces(clusters []*cluster.Cluster) []clusterDescribe {
 	return cls
 }
 
-func getTable(clusters []clusterDescribe, e exportable) string {
+func getTable(clusters []clusterDescribe, e exportable, alias string) string {
 	tw := table.NewWriter()
 	tw.AppendHeader(table.Row{"Cluster Name", "Region", "Status", "Exported Locally"})
 	rows := []table.Row{}
 	for _, cls := range clusters {
-		rows = append(rows, table.Row{cls.GetName(), cls.GetRegion(), cls.GetStatus(), getExportedString(e, cls)})
+		name, err := cls.PrettyName(alias)
+		if err != nil {
+			log.WithFields(log.Fields{
+				"err":          err.Error(),
+				"cluster-name": cls.GetName(),
+			}).Warn("Failback on name")
+			name = cls.GetName()
+		}
+		rows = append(rows, table.Row{name, cls.GetRegion(), cls.GetStatus(), getExportedString(e, cls)})
 	}
 	tw.AppendRows(rows)
 
@@ -78,7 +87,7 @@ func newListCommand() *cobra.Command {
 				return err
 			}
 
-			cmd.Println(getTable(convertToInterfaces(remoteEKSClusters), k))
+			cmd.Println(getTable(convertToInterfaces(remoteEKSClusters), k, alias))
 			return nil
 		},
 	}

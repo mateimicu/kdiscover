@@ -16,7 +16,6 @@ import (
 
 var (
 	backupKubeconfig bool
-	alias            string
 )
 
 func backupKubeConfig(kubeconfigPath string) (string, error) {
@@ -78,11 +77,6 @@ func newUpdateCommand() *cobra.Command {
 	}
 
 	updateCommand.Flags().BoolVar(&backupKubeconfig, "backup-kubeconfig", true, "Backup cubeconfig before update")
-	updateCommand.Flags().StringVar(
-		&alias,
-		"context-name-alias",
-		"{{.Name}}",
-		"Template for the context name. Has acces to Cluster type")
 
 	return updateCommand
 }

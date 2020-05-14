@@ -14,6 +14,7 @@ import (
 var (
 	awsPartitions []string
 	awsRegions    []string
+	alias         string
 )
 
 func newAWSCommand() *cobra.Command {
@@ -69,6 +70,12 @@ func newAWSCommand() *cobra.Command {
 		"kubeconfig-path",
 		kubeconfig.GetDefaultKubeconfigPath(),
 		"Path to the kubeconfig to work with")
+
+	AWSCommand.PersistentFlags().StringVar(
+		&alias,
+		"context-name-alias",
+		"{{.Name}}",
+		"Template for the context name. Has acces to Cluster type")
 
 	AWSCommand.AddCommand(newListCommand(), newUpdateCommand())
 	return AWSCommand

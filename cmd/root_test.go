@@ -18,10 +18,10 @@ var update = flag.Bool("update", false, "update .golden files")
 var basicCommands []struct{ cmd []string } = []struct {
 	cmd []string
 }{
+	{[]string{"version"}},
 	{[]string{"aws"}},
 	{[]string{"aws", "list"}},
 	{[]string{"aws", "update"}},
-	{[]string{"version"}},
 }
 
 // Because cobra is not running PersistantPreRunE for all the commands
