@@ -7,7 +7,7 @@
 
 
 Kdiscover is a simple utility to list and configure access to all clusters it can find.
-The basic usecase revolves in havin access to a lot of clusters but you still need to discover and export apposite kubeconfig.
+The basic usecase revolves in having access to a lot of clusters but you still need to discover and export apposite kubeconfig.
 
 Currently we suport only EKS clusters but there are plans to support othe k8s providers (GKE, AKE, etc ...)
 
