@@ -5,6 +5,7 @@
 ![GitHub go.mod Go version](https://img.shields.io/github/go-mod/go-version/mateimicu/kdiscover)
 ![GitHub](https://img.shields.io/github/license/mateimicu/kdiscover)
 [![FOSSA Status](https://app.fossa.com/api/projects/git%2Bgithub.com%2Fmateimicu%2Fkdiscover.svg?type=shield)](https://app.fossa.com/projects/git%2Bgithub.com%2Fmateimicu%2Fkdiscover?ref=badge_shield)
+[![Go Report Card](https://goreportcard.com/badge/github.com/mateimicu/kdiscover)](https://goreportcard.com/report/github.com/mateimicu/kdiscover)
 
 
 Kdiscover is a simple utility to list and configure access to all clusters it can find.
