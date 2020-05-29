@@ -4,6 +4,7 @@
 ![GitHub release (latest SemVer)](https://img.shields.io/github/v/release/mateimicu/kdiscover?sort=semver)
 ![GitHub go.mod Go version](https://img.shields.io/github/go-mod/go-version/mateimicu/kdiscover)
 ![GitHub](https://img.shields.io/github/license/mateimicu/kdiscover)
+[![FOSSA Status](https://app.fossa.com/api/projects/git%2Bgithub.com%2Fmateimicu%2Fkdiscover.svg?type=shield)](https://app.fossa.com/projects/git%2Bgithub.com%2Fmateimicu%2Fkdiscover?ref=badge_shield)
 
 
 Kdiscover is a simple utility to list and configure access to all clusters it can find.
@@ -118,3 +119,7 @@ used to generate the name of the context. In the template you have access to the
 
 
 [kubeconfig-context]: https://kubernetes.io/docs/concepts/configuration/organize-cluster-access-kubeconfig/#context
+
+
+## License
+[![FOSSA Status](https://app.fossa.com/api/projects/git%2Bgithub.com%2Fmateimicu%2Fkdiscover.svg?type=large)](https://app.fossa.com/projects/git%2Bgithub.com%2Fmateimicu%2Fkdiscover?ref=badge_large)
