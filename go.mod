@@ -9,7 +9,7 @@ require (
 	github.com/imdario/mergo v0.3.9 // indirect
 	github.com/jedib0t/go-pretty v4.3.0+incompatible
 	github.com/mattn/go-runewidth v0.0.9 // indirect
-	github.com/sirupsen/logrus v1.8.0
+	github.com/sirupsen/logrus v1.8.1
 	github.com/spf13/cobra v0.0.7
 	github.com/stretchr/testify v1.7.0
 	go.hein.dev/go-version v0.1.0
