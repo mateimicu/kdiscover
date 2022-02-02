@@ -13,5 +13,5 @@ require (
 	github.com/spf13/cobra v1.3.0
 	github.com/stretchr/testify v1.7.0
 	go.hein.dev/go-version v0.1.0
-	k8s.io/client-go v0.21.2
+	k8s.io/client-go v0.23.3
 )
