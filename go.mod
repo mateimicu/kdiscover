@@ -4,7 +4,7 @@ go 1.13
 
 require (
 	github.com/Masterminds/semver v1.5.0
-	github.com/aws/aws-sdk-go v1.44.18
+	github.com/aws/aws-sdk-go v1.44.19
 	github.com/go-openapi/strfmt v0.19.5 // indirect
 	github.com/google/go-cmp v0.5.6 // indirect
 	github.com/imdario/mergo v0.3.9 // indirect
