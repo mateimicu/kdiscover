@@ -73,7 +73,7 @@ Columns in the list :
 
 ### Binary
 
-You can download a specific version from the [release page](https://github.com/golangci/golangci-lint/releases)
+You can download a specific version from the [release page](https://github.com/mateimicu/kdiscover/releases)
 
 ### macOs
 
