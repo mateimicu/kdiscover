@@ -19,8 +19,11 @@ builds:
       - darwin
     goarch:
       - amd64
+      - arm64
     hooks:
-      post: codesign -s C608BAF5BB825297A907F7F48E06D2028EE37E3F -f -v --timestamp --options runtime ./dist/macos_darwin_amd64/kdiscover
+      post:
+        - codesign -s C608BAF5BB825297A907F7F48E06D2028EE37E3F -f -v --timestamp --options runtime ./dist/macos_darwin_amd64/kdiscover
+        - codesign -s C608BAF5BB825297A907F7F48E06D2028EE37E3F -f -v --timestamp --options runtime ./dist/macos_darwin_arm64/kdiscover
 
 
 
