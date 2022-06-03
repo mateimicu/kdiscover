@@ -36,7 +36,7 @@ Currently we suport only EKS clusters but there are plans to support othe k8s pr
 ┌────────────────────────────────────────────────────────────────────────────────┐
 │     cluster name                  region              status  exported locally │
 ├────────────────────────────────────────────────────────────────────────────────┤
-│  1  production-usa                us-east-1           ACTIVE          No       │
+│  1  production-us                 us-east-1           ACTIVE          No       │
 │  2  production-eu                 eu-west-1           ACTIVE          No       │
 │  3  dev-eu                        eu-central-1        ACTIVE          No       │
 │  4  sandbox-eu                    eu-central-1        ACTIVE          No       │
@@ -51,7 +51,7 @@ Backup kubeconfig to /Users/tuxy/.kube/config.bak
 ┌────────────────────────────────────────────────────────────────────────────────┐
 │     cluster name                  region              status  exported locally │
 ├────────────────────────────────────────────────────────────────────────────────┤
-│  1  production-usa                us-east-1           ACTIVE         Yes       │
+│  1  production-us                 us-east-1           ACTIVE         Yes       │
 │  2  production-eu                 eu-west-1           ACTIVE         Yes       │
 │  3  dev-eu                        eu-central-1        ACTIVE         Yes       │
 │  4  sandbox-eu                    eu-central-1        ACTIVE         Yes       │
