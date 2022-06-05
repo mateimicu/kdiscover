@@ -10,7 +10,7 @@ import (
 )
 
 const (
-	clientAPIVersion = "client.authentication.k8s.io/v1alpha1"
+	clientAPIVersion = "client.authentication.k8s.io/v1beta1"
 )
 
 var (
