@@ -17,12 +17,17 @@ import (
 var update = flag.Bool("update", false, "update .golden files")
 
 var basicCommands = []struct {
-	cmd []string
+	cmd     []string
+	context string
 }{
-	{[]string{"version"}},
-	{[]string{"aws"}},
-	{[]string{"aws", "list"}},
-	{[]string{"aws", "update"}},
+	{[]string{"version"}, "kdiscover"},
+	{[]string{"aws"}, "kdiscover"},
+	{[]string{"aws", "list"}, "kdiscover"},
+	{[]string{"aws", "update"}, "kdiscover"},
+	{[]string{"version"}, "kubectl-discover"},
+	{[]string{"aws"}, "kubectl-discover"},
+	{[]string{"aws", "list"}, "kubectl-discover"},
+	{[]string{"aws", "update"}, "kubectl-discover"},
 }
 
 // Because cobra is not running PersistantPreRunE for all the commands
@@ -41,7 +46,7 @@ func Test_CascadingPersistPreRunEHackWithLoggingLevels(t *testing.T) {
 				defer os.RemoveAll(dir)
 
 				kubeconfigPath := filepath.Join(dir, "kubeconfig")
-				cmd := NewRootCommand("", "", "", "kdiscover")
+				cmd := NewRootCommand("", "", "", tt.context)
 				cmd.SetOut(ioutil.Discard)
 				cmd.SetErr(ioutil.Discard)
 
@@ -70,11 +75,10 @@ func Test_CascadingPersistPreRunEHackWithLoggingLevels(t *testing.T) {
 
 // This is a smoke test to make sure all commands are able to function
 func Test_HelpFunction(t *testing.T) {
-	expected := "kdiscover"
 	for _, tt := range basicCommands {
 		testname := fmt.Sprintf("command %v", tt.cmd)
 		t.Run(testname, func(t *testing.T) {
-			cmd := NewRootCommand("", "", "", "kdiscover")
+			cmd := NewRootCommand("", "", "", tt.context)
 
 			buf := new(strings.Builder)
 			cmd.SetOut(buf)
@@ -88,10 +92,10 @@ func Test_HelpFunction(t *testing.T) {
 				t.Error(err.Error())
 			}
 
-			if !strings.Contains(buf.String(), expected) {
+			if !strings.Contains(buf.String(), tt.context) {
 				t.Errorf(
 					"Running %v we were expecting %v in the output but got: %v",
-					tt.cmd, expected, buf.String())
+					tt.cmd, tt.context, buf.String())
 			}
 		})
 	}
