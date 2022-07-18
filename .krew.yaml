@@ -3,14 +3,12 @@ kind: Plugin
 metadata:
   name: discover
 spec:
-  version: "v0.1.4"
+  version: {{ .TagName }}
   homepage: https://github.com/mateimicu/kdiscover
-  # 'shortDescription' explains what the plugin does in only a few words
   shortDescription: "Discover Kubernetes clusters and export configs"
   description: |
     Discover all the cluster from a provider (AWS, GCP, Azure, etc)
     and manage there credentials.
-  # 'platforms' specify installation methods for various platforms (os/arch)
   platforms:
   # MacOs
   - selector:
