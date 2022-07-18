@@ -53,7 +53,7 @@ func TestLoadKubeconfig(t *testing.T) {
 				t.Errorf("Failed to load kubeconfig %v", err.Error())
 			}
 
-			out := make([]simpleCluster, 0, 0)
+			out := make([]simpleCluster, 0)
 			for _, c := range clusters {
 				out = append(out, simpleCluster{
 					Endpoint:                 c.Endpoint,
@@ -61,7 +61,7 @@ func TestLoadKubeconfig(t *testing.T) {
 				})
 			}
 
-			expected := make([]simpleCluster, 0, 0)
+			expected := make([]simpleCluster, 0)
 			for _, c := range tc.Clusters {
 				expected = append(expected, simpleCluster{
 					Endpoint:                 c.Endpoint,

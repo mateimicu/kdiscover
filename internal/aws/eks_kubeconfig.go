@@ -22,12 +22,12 @@ const (
 )
 
 var (
-	commands map[AuthType]string = map[AuthType]string{
+	commands = map[AuthType]string{
 		useAWSCLI:           commandAWScli,
 		useIAMAuthenticator: commandIAMAuthenticator,
 	}
 
-	awsCLIVersionCommand []string = []string{"aws", "--version"}
+	awsCLIVersionCommand = []string{"aws", "--version"}
 )
 
 func getAuthType() AuthType {

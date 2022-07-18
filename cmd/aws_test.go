@@ -19,7 +19,7 @@ type testCase struct {
 	Partitions []string
 }
 
-var cases []testCase = []testCase{
+var cases = []testCase{
 	{[]string{"aws", "list"}, []string{"aws"}},
 	{[]string{"aws", "list"}, []string{"aws-cn"}},
 	{[]string{"aws", "list"}, []string{"aws-iso-b"}},
@@ -53,13 +53,13 @@ func TestQueryAllRegions(t *testing.T) {
 			defer func() { log.SetOutput(os.Stdout) }()
 			hook := test.NewGlobal()
 			defer hook.Reset()
-			args := append(tt.Cmd, []string{
+			tt.Cmd = append(tt.Cmd, []string{
 				"--log-level", "debug",
 				"--kubeconfig-path", kubeconfigPath,
 				"--aws-partitions", strings.Join(tt.Partitions, ","),
 			}...)
 
-			cmd.SetArgs(args)
+			cmd.SetArgs(tt.Cmd)
 			err = cmd.Execute()
 			if err != nil {
 				t.Error(err.Error())

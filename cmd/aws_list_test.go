@@ -22,7 +22,7 @@ type tableTestCase struct {
 }
 
 var (
-	tableCases []tableTestCase = []tableTestCase{
+	tableCases = []tableTestCase{
 		{Clusters: cluster.GetMockClusters(0)},
 		{Clusters: cluster.GetMockClusters(1)},
 		{Clusters: cluster.GetMockClusters(3)},

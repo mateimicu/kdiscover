@@ -7,8 +7,8 @@ import (
 )
 
 var (
-	shortened bool   = false
-	output    string = "json"
+	shortened = false
+	output    = "json"
 )
 
 func newVersionCommand(version, commit, date string) *cobra.Command {

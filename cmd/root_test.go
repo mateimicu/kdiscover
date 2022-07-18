@@ -13,9 +13,10 @@ import (
 	log "github.com/sirupsen/logrus"
 )
 
+// nolint:unused, varcheck, deadcode
 var update = flag.Bool("update", false, "update .golden files")
 
-var basicCommands []struct{ cmd []string } = []struct {
+var basicCommands = []struct {
 	cmd []string
 }{
 	{[]string{"version"}},
@@ -44,12 +45,12 @@ func Test_CascadingPersistPreRunEHackWithLoggingLevels(t *testing.T) {
 				cmd.SetOut(ioutil.Discard)
 				cmd.SetErr(ioutil.Discard)
 
-				completCmd := append(tt.cmd, "--log-level")
-				completCmd = append(completCmd, k)
-				completCmd = append(completCmd, "--kubeconfig-path")
-				completCmd = append(completCmd, kubeconfigPath)
+				tt.cmd = append(tt.cmd, "--log-level")
+				tt.cmd = append(tt.cmd, k)
+				tt.cmd = append(tt.cmd, "--kubeconfig-path")
+				tt.cmd = append(tt.cmd, kubeconfigPath)
 
-				cmd.SetArgs(completCmd)
+				cmd.SetArgs(tt.cmd)
 				err = cmd.Execute()
 				if err != nil {
 					t.Error(err.Error())
@@ -58,11 +59,11 @@ func Test_CascadingPersistPreRunEHackWithLoggingLevels(t *testing.T) {
 				// none logging level is a special case
 				if k == "none" {
 					if log.StandardLogger().Out != ioutil.Discard {
-						t.Errorf("Running %v we were expecting logging to be discared but it is not ", completCmd)
+						t.Errorf("Running %v we were expecting logging to be discared but it is not ", tt.cmd)
 					}
 				} else {
 					if exp != log.GetLevel() {
-						t.Errorf("Running %v we were expecting logger to be %v but it is %v", completCmd, exp, log.GetLevel())
+						t.Errorf("Running %v we were expecting logger to be %v but it is %v", tt.cmd, exp, log.GetLevel())
 					}
 				}
 			})
@@ -82,9 +83,9 @@ func Test_HelpFunction(t *testing.T) {
 			cmd.SetOut(buf)
 			cmd.SetErr(buf)
 
-			completCmd := append(tt.cmd, "--help")
+			tt.cmd = append(tt.cmd, "--help")
 
-			cmd.SetArgs(completCmd)
+			cmd.SetArgs(tt.cmd)
 			err := cmd.Execute()
 			if err != nil {
 				t.Error(err.Error())
@@ -93,7 +94,7 @@ func Test_HelpFunction(t *testing.T) {
 			if !strings.Contains(buf.String(), expected) {
 				t.Errorf(
 					"Running %v we were expecting %v in the output but got: %v",
-					completCmd, expected, buf.String())
+					tt.cmd, expected, buf.String())
 			}
 		})
 	}

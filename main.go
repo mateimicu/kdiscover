@@ -6,6 +6,7 @@ import (
 	"github.com/mateimicu/kdiscover/cmd"
 )
 
+//nolint:unused, varcheck, deadcode
 var update = flag.Bool("update", false, "update .golden files")
 
 var (

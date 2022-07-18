@@ -38,10 +38,10 @@ func Test_Version(t *testing.T) {
 			cmd.SetOut(buf)
 			cmd.SetErr(buf)
 
-			completCmd := append(tt.Cmd, "--kubeconfig-path")
-			completCmd = append(completCmd, kubeconfigPath)
+			tt.Cmd = append(tt.Cmd, "--kubeconfig-path")
+			tt.Cmd = append(tt.Cmd, kubeconfigPath)
 
-			cmd.SetArgs(completCmd)
+			cmd.SetArgs(tt.Cmd)
 			err = cmd.Execute()
 			if err != nil {
 				t.Error(err.Error())

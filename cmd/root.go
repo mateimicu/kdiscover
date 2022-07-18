@@ -5,8 +5,8 @@ import (
 	"fmt"
 	"io/ioutil"
 	"os"
-	"strings"
 	"path/filepath"
+	"strings"
 
 	"github.com/mateimicu/kdiscover/internal/kubeconfig"
 	"github.com/spf13/cobra"
@@ -32,7 +32,6 @@ var (
 )
 
 func NewRootCommand(version, commit, date, commandPrefix string) *cobra.Command {
-
 	rootCmd := &cobra.Command{
 		Use:   commandPrefix,
 		Short: "Discover all EKS clusters on an account.",
