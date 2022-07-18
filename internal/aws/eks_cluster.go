@@ -14,7 +14,7 @@ const (
 )
 
 var (
-	options map[AuthType][]string = map[AuthType][]string{
+	options = map[AuthType][]string{
 		useAWSCLI:           {"eks", "get-token", "--cluster-name"},
 		useIAMAuthenticator: {"token", "-i"},
 	}

@@ -16,6 +16,8 @@ const (
 func stringWithCharset(length int, charset string) string {
 	b := make([]byte, length)
 	for i := range b {
+		// NOTE(mmicu): this is for testing only
+		// #nosec
 		b[i] = charset[rand.Intn(len(charset))]
 	}
 	return string(b)
@@ -27,7 +29,6 @@ func randomString(length int) string {
 
 func dummyGenerateAuthInfo(cls *Cluster) *clientcmdapi.AuthInfo {
 	return clientcmdapi.NewAuthInfo()
-
 }
 
 func getMockClusters(i int, r string) *Cluster {

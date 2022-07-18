@@ -5,6 +5,8 @@ import (
 	"fmt"
 	"io/ioutil"
 	"os"
+	"path/filepath"
+	"strings"
 
 	"github.com/mateimicu/kdiscover/internal/kubeconfig"
 	"github.com/spf13/cobra"
@@ -29,9 +31,9 @@ var (
 	logLevel       string
 )
 
-func NewRootCommand(version, commit, date string) *cobra.Command {
+func NewRootCommand(version, commit, date, commandPrefix string) *cobra.Command {
 	rootCmd := &cobra.Command{
-		Use:   "kdiscover",
+		Use:   commandPrefix,
 		Short: "Discover all EKS clusters on an account.",
 		Long: `kdiscover is a simple utility that can search
 all regions on an AWS account and try to find all EKS clsuters.
@@ -76,7 +78,11 @@ It will try to upgrade the kube-config for each cluster.`,
 
 // Execute will create the tree of commands and will start parsing and execution
 func Execute(version, commit, date string) {
-	rootCmd := NewRootCommand(version, commit, date)
+	var prefix = "kdiscover"
+	if strings.HasPrefix(filepath.Base(os.Args[0]), "kubectl-") {
+		prefix = "kubectl discover"
+	}
+	rootCmd := NewRootCommand(version, commit, date, prefix)
 
 	if err := rootCmd.Execute(); err != nil {
 		fmt.Println(err)

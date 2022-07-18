@@ -24,7 +24,7 @@ func TestAWSCLIVersion(t *testing.T) {
 	for _, tt := range tts {
 		testname := fmt.Sprintf("%v -> %v (cmd %v)", tt.Output, tt.Expected, tt.SupportCommand)
 		t.Run(testname, func(t *testing.T) {
-			//overwrite command
+			// overwrite command
 			out := getAWSCLIversion([]string{tt.SupportCommand, fmt.Sprintf("'%v'", tt.Output)})
 
 			expVer, err := semver.NewVersion(tt.Expected)

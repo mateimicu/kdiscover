@@ -15,6 +15,7 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
+//nolint:unused, varcheck, deadcode
 var update = flag.Bool("update", false, "update .golden files")
 
 type mockEKSClient struct {
@@ -50,7 +51,7 @@ func (c *mockEKSClient) ListClustersPages(_ *eks.ListClustersInput, fn func(*eks
 		o := eks.ListClustersOutput{}
 		clusters := []*string{}
 
-		//prepare clusters
+		// prepare clusters
 		for _, cls := range c.Clusters[start:end] {
 			clusters = append(clusters, &cls.Name)
 		}
@@ -105,7 +106,7 @@ type testCase struct {
 	Region string
 }
 
-var cases []testCase = []testCase{
+var cases = []testCase{
 	// Happy flows
 	{
 		Client: mockEKSClient{

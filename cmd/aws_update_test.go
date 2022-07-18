@@ -18,7 +18,7 @@ func Test_generateBackupNameNoConflict(t *testing.T) {
 	kubeconfigPath := filepath.Join(dir, "kubeconfig")
 	backupKubeconfigPath := filepath.Join(dir, "kubeconfig.bak")
 
-	if err := ioutil.WriteFile(kubeconfigPath, []byte("..."), 0666); err != nil {
+	if err := ioutil.WriteFile(kubeconfigPath, []byte("..."), 0600); err != nil {
 		t.Error(err.Error())
 	}
 
@@ -68,7 +68,7 @@ func Test_fileExistsFile(t *testing.T) {
 
 	path := filepath.Join(dir, "kubeconfig")
 
-	if err := ioutil.WriteFile(path, []byte("...\n"), 0666); err != nil {
+	if err := ioutil.WriteFile(path, []byte("...\n"), 0600); err != nil {
 		t.Error(err.Error())
 	}
 

@@ -15,7 +15,6 @@ import (
 	log "github.com/sirupsen/logrus"
 )
 
-//type ClusterListDescriber struct {
 type EKSClient struct {
 	EKS    eksiface.EKSAPI
 	Region string

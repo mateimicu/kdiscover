@@ -13,15 +13,21 @@ import (
 	log "github.com/sirupsen/logrus"
 )
 
+// nolint:unused, varcheck, deadcode
 var update = flag.Bool("update", false, "update .golden files")
 
-var basicCommands []struct{ cmd []string } = []struct {
-	cmd []string
+var basicCommands = []struct {
+	cmd     []string
+	context string
 }{
-	{[]string{"version"}},
-	{[]string{"aws"}},
-	{[]string{"aws", "list"}},
-	{[]string{"aws", "update"}},
+	{[]string{"version"}, "kdiscover"},
+	{[]string{"aws"}, "kdiscover"},
+	{[]string{"aws", "list"}, "kdiscover"},
+	{[]string{"aws", "update"}, "kdiscover"},
+	{[]string{"version"}, "kubectl-discover"},
+	{[]string{"aws"}, "kubectl-discover"},
+	{[]string{"aws", "list"}, "kubectl-discover"},
+	{[]string{"aws", "update"}, "kubectl-discover"},
 }
 
 // Because cobra is not running PersistantPreRunE for all the commands
@@ -40,16 +46,13 @@ func Test_CascadingPersistPreRunEHackWithLoggingLevels(t *testing.T) {
 				defer os.RemoveAll(dir)
 
 				kubeconfigPath := filepath.Join(dir, "kubeconfig")
-				cmd := NewRootCommand("", "", "")
+				cmd := NewRootCommand("", "", "", tt.context)
 				cmd.SetOut(ioutil.Discard)
 				cmd.SetErr(ioutil.Discard)
 
-				completCmd := append(tt.cmd, "--log-level")
-				completCmd = append(completCmd, k)
-				completCmd = append(completCmd, "--kubeconfig-path")
-				completCmd = append(completCmd, kubeconfigPath)
+				tt.cmd = append(tt.cmd, "--log-level", k, "--kubeconfig-path", kubeconfigPath)
 
-				cmd.SetArgs(completCmd)
+				cmd.SetArgs(tt.cmd)
 				err = cmd.Execute()
 				if err != nil {
 					t.Error(err.Error())
@@ -58,11 +61,11 @@ func Test_CascadingPersistPreRunEHackWithLoggingLevels(t *testing.T) {
 				// none logging level is a special case
 				if k == "none" {
 					if log.StandardLogger().Out != ioutil.Discard {
-						t.Errorf("Running %v we were expecting logging to be discared but it is not ", completCmd)
+						t.Errorf("Running %v we were expecting logging to be discared but it is not ", tt.cmd)
 					}
 				} else {
 					if exp != log.GetLevel() {
-						t.Errorf("Running %v we were expecting logger to be %v but it is %v", completCmd, exp, log.GetLevel())
+						t.Errorf("Running %v we were expecting logger to be %v but it is %v", tt.cmd, exp, log.GetLevel())
 					}
 				}
 			})
@@ -72,28 +75,27 @@ func Test_CascadingPersistPreRunEHackWithLoggingLevels(t *testing.T) {
 
 // This is a smoke test to make sure all commands are able to function
 func Test_HelpFunction(t *testing.T) {
-	expected := "kdiscover"
 	for _, tt := range basicCommands {
 		testname := fmt.Sprintf("command %v", tt.cmd)
 		t.Run(testname, func(t *testing.T) {
-			cmd := NewRootCommand("", "", "")
+			cmd := NewRootCommand("", "", "", tt.context)
 
 			buf := new(strings.Builder)
 			cmd.SetOut(buf)
 			cmd.SetErr(buf)
 
-			completCmd := append(tt.cmd, "--help")
+			tt.cmd = append(tt.cmd, "--help")
 
-			cmd.SetArgs(completCmd)
+			cmd.SetArgs(tt.cmd)
 			err := cmd.Execute()
 			if err != nil {
 				t.Error(err.Error())
 			}
 
-			if !strings.Contains(buf.String(), expected) {
+			if !strings.Contains(buf.String(), tt.context) {
 				t.Errorf(
 					"Running %v we were expecting %v in the output but got: %v",
-					completCmd, expected, buf.String())
+					tt.cmd, tt.context, buf.String())
 			}
 		})
 	}

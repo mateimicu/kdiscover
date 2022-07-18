@@ -33,15 +33,14 @@ func Test_Version(t *testing.T) {
 			version := "mock-version"
 			commit := "mock-commit"
 			date := "mock-date"
-			cmd := NewRootCommand(version, commit, date)
+			cmd := NewRootCommand(version, commit, date, "kdisocver")
 			buf := new(strings.Builder)
 			cmd.SetOut(buf)
 			cmd.SetErr(buf)
 
-			completCmd := append(tt.Cmd, "--kubeconfig-path")
-			completCmd = append(completCmd, kubeconfigPath)
+			tt.Cmd = append(tt.Cmd, "--kubeconfig-path", kubeconfigPath)
 
-			cmd.SetArgs(completCmd)
+			cmd.SetArgs(tt.Cmd)
 			err = cmd.Execute()
 			if err != nil {
 				t.Error(err.Error())
