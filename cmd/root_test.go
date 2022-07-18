@@ -40,7 +40,7 @@ func Test_CascadingPersistPreRunEHackWithLoggingLevels(t *testing.T) {
 				defer os.RemoveAll(dir)
 
 				kubeconfigPath := filepath.Join(dir, "kubeconfig")
-				cmd := NewRootCommand("", "", "")
+				cmd := NewRootCommand("", "", "", "kdiscover")
 				cmd.SetOut(ioutil.Discard)
 				cmd.SetErr(ioutil.Discard)
 
@@ -76,7 +76,7 @@ func Test_HelpFunction(t *testing.T) {
 	for _, tt := range basicCommands {
 		testname := fmt.Sprintf("command %v", tt.cmd)
 		t.Run(testname, func(t *testing.T) {
-			cmd := NewRootCommand("", "", "")
+			cmd := NewRootCommand("", "", "", "kdiscover")
 
 			buf := new(strings.Builder)
 			cmd.SetOut(buf)

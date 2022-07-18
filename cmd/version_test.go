@@ -33,7 +33,7 @@ func Test_Version(t *testing.T) {
 			version := "mock-version"
 			commit := "mock-commit"
 			date := "mock-date"
-			cmd := NewRootCommand(version, commit, date)
+			cmd := NewRootCommand(version, commit, date, "kdisocver")
 			buf := new(strings.Builder)
 			cmd.SetOut(buf)
 			cmd.SetErr(buf)
