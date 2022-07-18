@@ -1,0 +1,118 @@
+apiVersion: krew.googlecontainertools.github.com/v1alpha2
+kind: Plugin
+metadata:
+  name: discover
+spec:
+  version: "v0.1.4"
+  homepage: https://github.com/mateimicu/kdiscover
+  # 'shortDescription' explains what the plugin does in only a few words
+  shortDescription: "Discover Kubernetes clusters and export configs"
+  description: |
+    Discover all the cluster from a provider (AWS, GCP, Azure, etc)
+    and manage there credentials.
+  # 'platforms' specify installation methods for various platforms (os/arch)
+  platforms:
+  # MacOs
+  - selector:
+      matchexpressions:
+        os: darwin
+        arch: amd64
+    # https://github.com/mateimicu/kdiscover/releases/download/v0.1.4/kdiscover_0.1.4_darwin_amd64.tar.gz
+    {{adduriandsha "https://github.com/mateimicu/kdiscover/releases/download/{{ .tagname }}/kdiscover_{{ .tagname }}_darwin_amd64.tar.gz" .tagname }}
+    bin: kubectl-discover
+    files:
+    - from: "kdiscover"
+      to: "kubectl-discover"
+  - selector:
+      matchexpressions:
+        os: darwin
+        arch: amd64
+    {{adduriandsha "https://github.com/mateimicu/kdiscover/releases/download/{{ .tagname }}/kdiscover_{{ .tagname }}_darwin_amd64.tar.gz" .tagname }}
+    bin: kubectl-discover
+    files:
+    - from: "kdiscover"
+      to: "kubectl-discover"
+  # Linux
+  - selector:
+      matchexpressions:
+        os: linux
+        arch: amd64
+    {{adduriandsha "https://github.com/mateimicu/kdiscover/releases/download/{{ .tagname }}/kdiscover_{{ .tagname }}_linux_amd64.tar.gz" .tagname }}
+    bin: kubectl-discover
+    files:
+    - from: "kdiscover"
+      to: "kubectl-discover"
+  - selector:
+      matchexpressions:
+        os: linux
+        arch: arm64
+    {{adduriandsha "https://github.com/mateimicu/kdiscover/releases/download/{{ .tagname }}/kdiscover_{{ .tagname }}_linux_arm64.tar.gz" .tagname }}
+    bin: kubectl-discover
+    files:
+    - from: "kdiscover"
+      to: "kubectl-discover"
+  - selector:
+      matchexpressions:
+        os: linux
+        arch: 386
+    {{adduriandsha "https://github.com/mateimicu/kdiscover/releases/download/{{ .tagname }}/kdiscover_{{ .tagname }}_linux_386.tar.gz" .tagname }}
+    bin: kubectl-discover
+    files:
+    - from: "kdiscover"
+      to: "kubectl-discover"
+  # FreeBSD
+  - selector:
+      matchexpressions:
+        os: freebsd
+        arch: amd64
+    {{adduriandsha "https://github.com/mateimicu/kdiscover/releases/download/{{ .tagname }}/kdiscover_{{ .tagname }}_freebsd_amd64.tar.gz" .tagname }}
+    bin: kubectl-discover
+    files:
+    - from: "kdiscover"
+      to: "kubectl-discover"
+  - selector:
+      matchexpressions:
+        os: freebsd
+        arch: arm64
+    {{adduriandsha "https://github.com/mateimicu/kdiscover/releases/download/{{ .tagname }}/kdiscover_{{ .tagname }}_freebsd_arm64.tar.gz" .tagname }}
+    bin: kubectl-discover
+    files:
+    - from: "kdiscover"
+      to: "kubectl-discover"
+  - selector:
+      matchexpressions:
+        os: freebsd
+        arch: 386
+    {{adduriandsha "https://github.com/mateimicu/kdiscover/releases/download/{{ .tagname }}/kdiscover_{{ .tagname }}_freebsd_386.tar.gz" .tagname }}
+    bin: kubectl-discover
+    files:
+    - from: "kdiscover"
+      to: "kubectl-discover"
+  # Windows
+  - selector:
+      matchexpressions:
+        os: windows
+        arch: amd64
+    {{adduriandsha "https://github.com/mateimicu/kdiscover/releases/download/{{ .tagname }}/kdiscover_{{ .tagname }}_windows_amd64.tar.gz" .tagname }}
+    bin: kubectl-discover.exe
+    files:
+    - from: "kdiscover.exe"
+      to: "kubectl-discover.exe"
+  - selector:
+      matchexpressions:
+        os: windows
+        arch: arm64
+    {{adduriandsha "https://github.com/mateimicu/kdiscover/releases/download/{{ .tagname }}/kdiscover_{{ .tagname }}_windows_arm64.tar.gz" .tagname }}
+    bin: kubectl-discover.exe
+    files:
+    - from: "kdiscover.exe"
+      to: "kubectl-discover.exe"
+  - selector:
+      matchexpressions:
+        os: windows
+        arch: 386
+    {{adduriandsha "https://github.com/mateimicu/kdiscover/releases/download/{{ .tagname }}/kdiscover_{{ .tagname }}_windows_386.tar.gz" .tagname }}
+    bin: kubectl-discover.exe
+    files:
+    - from: "kdiscover.exe"
+      to: "kubectl-discover.exe"
