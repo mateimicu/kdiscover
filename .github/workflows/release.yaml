@@ -7,8 +7,6 @@ on:
 
 jobs:
   goreleaser:
-    # NOTE(mmicu): no need to import certificate
-    #runs-on: macos-latest
     runs-on: ubuntu-latest
     steps:
       - name: Checkout

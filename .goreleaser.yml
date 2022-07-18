@@ -20,13 +20,6 @@ builds:
     goarch:
       - amd64
       - arm64
-    # NOTE(mmicu): no need to self sign
-    #hooks:
-      #post:
-        #- codesign -s C608BAF5BB825297A907F7F48E06D2028EE37E3F -f -v --timestamp --options runtime ./dist/macos_darwin_amd64/kdiscover
-        #- codesign -s C608BAF5BB825297A907F7F48E06D2028EE37E3F -f -v --timestamp --options runtime ./dist/macos_darwin_arm64/kdiscover
-
-
 
 archives:
   - name_template: "{{ .ProjectName }}_{{ .Version }}_{{ .Os }}_{{ .Arch }}"
