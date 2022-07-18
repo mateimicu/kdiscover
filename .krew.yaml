@@ -14,17 +14,16 @@ spec:
   platforms:
   # MacOs
   - selector:
-      matchexpressions:
+      matchLabels:
         os: darwin
-        arch: amd64
-    # https://github.com/mateimicu/kdiscover/releases/download/v0.1.4/kdiscover_0.1.4_darwin_amd64.tar.gz
-    {{addURIAndSha "https://github.com/mateimicu/kdiscover/releases/download/{{ .TagName }}/kdiscover_{{ .TagName }}_darwin_amd64.tar.gz" .TagName }}
+        arch: arm64
+    {{addURIAndSha "https://github.com/mateimicu/kdiscover/releases/download/{{ .TagName }}/kdiscover_{{ .TagName }}_darwin_arm64.tar.gz" .TagName }}
     bin: kubectl-discover
     files:
     - from: "kdiscover"
       to: "kubectl-discover"
   - selector:
-      matchexpressions:
+      matchLabels:
         os: darwin
         arch: amd64
     {{addURIAndSha "https://github.com/mateimicu/kdiscover/releases/download/{{ .TagName }}/kdiscover_{{ .TagName }}_darwin_amd64.tar.gz" .TagName }}
@@ -34,7 +33,7 @@ spec:
       to: "kubectl-discover"
   # Linux
   - selector:
-      matchexpressions:
+      matchLabels:
         os: linux
         arch: amd64
     {{addURIAndSha "https://github.com/mateimicu/kdiscover/releases/download/{{ .TagName }}/kdiscover_{{ .TagName }}_linux_amd64.tar.gz" .TagName }}
@@ -43,7 +42,7 @@ spec:
     - from: "kdiscover"
       to: "kubectl-discover"
   - selector:
-      matchexpressions:
+      matchLabels:
         os: linux
         arch: arm64
     {{addURIAndSha "https://github.com/mateimicu/kdiscover/releases/download/{{ .TagName }}/kdiscover_{{ .TagName }}_linux_arm64.tar.gz" .TagName }}
@@ -52,7 +51,7 @@ spec:
     - from: "kdiscover"
       to: "kubectl-discover"
   - selector:
-      matchexpressions:
+      matchLabels:
         os: linux
         arch: 386
     {{addURIAndSha "https://github.com/mateimicu/kdiscover/releases/download/{{ .TagName }}/kdiscover_{{ .TagName }}_linux_386.tar.gz" .TagName }}
@@ -62,7 +61,7 @@ spec:
       to: "kubectl-discover"
   # FreeBSD
   - selector:
-      matchexpressions:
+      matchLabels:
         os: freebsd
         arch: amd64
     {{addURIAndSha "https://github.com/mateimicu/kdiscover/releases/download/{{ .TagName }}/kdiscover_{{ .TagName }}_freebsd_amd64.tar.gz" .TagName }}
@@ -71,7 +70,7 @@ spec:
     - from: "kdiscover"
       to: "kubectl-discover"
   - selector:
-      matchexpressions:
+      matchLabels:
         os: freebsd
         arch: arm64
     {{addURIAndSha "https://github.com/mateimicu/kdiscover/releases/download/{{ .TagName }}/kdiscover_{{ .TagName }}_freebsd_arm64.tar.gz" .TagName }}
@@ -80,7 +79,7 @@ spec:
     - from: "kdiscover"
       to: "kubectl-discover"
   - selector:
-      matchexpressions:
+      matchLabels:
         os: freebsd
         arch: 386
     {{addURIAndSha "https://github.com/mateimicu/kdiscover/releases/download/{{ .TagName }}/kdiscover_{{ .TagName }}_freebsd_386.tar.gz" .TagName }}
@@ -90,7 +89,7 @@ spec:
       to: "kubectl-discover"
   # Windows
   - selector:
-      matchexpressions:
+      matchLabels:
         os: windows
         arch: amd64
     {{addURIAndSha "https://github.com/mateimicu/kdiscover/releases/download/{{ .TagName }}/kdiscover_{{ .TagName }}_windows_amd64.zip" .TagName }}
@@ -99,7 +98,7 @@ spec:
     - from: "kdiscover.exe"
       to: "kubectl-discover.exe"
   - selector:
-      matchexpressions:
+      matchLabels:
         os: windows
         arch: arm64
     {{addURIAndSha "https://github.com/mateimicu/kdiscover/releases/download/{{ .TagName }}/kdiscover_{{ .TagName }}_windows_arm64.zip" .TagName }}
@@ -108,7 +107,7 @@ spec:
     - from: "kdiscover.exe"
       to: "kubectl-discover.exe"
   - selector:
-      matchexpressions:
+      matchLabels:
         os: windows
         arch: 386
     {{addURIAndSha "https://github.com/mateimicu/kdiscover/releases/download/{{ .TagName }}/kdiscover_{{ .TagName }}_windows_386.zip" .TagName }}
