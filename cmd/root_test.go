@@ -45,10 +45,7 @@ func Test_CascadingPersistPreRunEHackWithLoggingLevels(t *testing.T) {
 				cmd.SetOut(ioutil.Discard)
 				cmd.SetErr(ioutil.Discard)
 
-				tt.cmd = append(tt.cmd, "--log-level")
-				tt.cmd = append(tt.cmd, k)
-				tt.cmd = append(tt.cmd, "--kubeconfig-path")
-				tt.cmd = append(tt.cmd, kubeconfigPath)
+				tt.cmd = append(tt.cmd, "--log-level", k, "--kubeconfig-path", kubeconfigPath)
 
 				cmd.SetArgs(tt.cmd)
 				err = cmd.Execute()
