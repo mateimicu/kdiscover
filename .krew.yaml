@@ -57,34 +57,6 @@ spec:
     files:
     - from: "kdiscover"
       to: "kubectl-discover"
-  # FreeBSD
-  - selector:
-      matchLabels:
-        os: freebsd
-        arch: amd64
-    {{addURIAndSha "https://github.com/mateimicu/kdiscover/releases/download/{{ .TagName }}/kdiscover_{{ .TagName }}_freebsd_amd64.tar.gz" .TagName }}
-    bin: kubectl-discover
-    files:
-    - from: "kdiscover"
-      to: "kubectl-discover"
-  - selector:
-      matchLabels:
-        os: freebsd
-        arch: arm64
-    {{addURIAndSha "https://github.com/mateimicu/kdiscover/releases/download/{{ .TagName }}/kdiscover_{{ .TagName }}_freebsd_arm64.tar.gz" .TagName }}
-    bin: kubectl-discover
-    files:
-    - from: "kdiscover"
-      to: "kubectl-discover"
-  - selector:
-      matchLabels:
-        os: freebsd
-        arch: 386
-    {{addURIAndSha "https://github.com/mateimicu/kdiscover/releases/download/{{ .TagName }}/kdiscover_{{ .TagName }}_freebsd_386.tar.gz" .TagName }}
-    bin: kubectl-discover
-    files:
-    - from: "kdiscover"
-      to: "kubectl-discover"
   # Windows
   - selector:
       matchLabels:
