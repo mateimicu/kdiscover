@@ -93,7 +93,7 @@ spec:
       matchexpressions:
         os: windows
         arch: amd64
-    {{addURIAndSha "https://github.com/mateimicu/kdiscover/releases/download/{{ .TagName }}/kdiscover_{{ .TagName }}_windows_amd64.tar.gz" .TagName }}
+    {{addURIAndSha "https://github.com/mateimicu/kdiscover/releases/download/{{ .TagName }}/kdiscover_{{ .TagName }}_windows_amd64.zip" .TagName }}
     bin: kubectl-discover.exe
     files:
     - from: "kdiscover.exe"
@@ -102,7 +102,7 @@ spec:
       matchexpressions:
         os: windows
         arch: arm64
-    {{addURIAndSha "https://github.com/mateimicu/kdiscover/releases/download/{{ .TagName }}/kdiscover_{{ .TagName }}_windows_arm64.tar.gz" .TagName }}
+    {{addURIAndSha "https://github.com/mateimicu/kdiscover/releases/download/{{ .TagName }}/kdiscover_{{ .TagName }}_windows_arm64.zip" .TagName }}
     bin: kubectl-discover.exe
     files:
     - from: "kdiscover.exe"
@@ -111,7 +111,7 @@ spec:
       matchexpressions:
         os: windows
         arch: 386
-    {{addURIAndSha "https://github.com/mateimicu/kdiscover/releases/download/{{ .TagName }}/kdiscover_{{ .TagName }}_windows_386.tar.gz" .TagName }}
+    {{addURIAndSha "https://github.com/mateimicu/kdiscover/releases/download/{{ .TagName }}/kdiscover_{{ .TagName }}_windows_386.zip" .TagName }}
     bin: kubectl-discover.exe
     files:
     - from: "kdiscover.exe"
