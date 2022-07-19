@@ -20,6 +20,8 @@ spec:
     files:
     - from: "kdiscover"
       to: "kubectl-discover"
+    - from: "LICENSE"
+      to: "."
   - selector:
       matchLabels:
         os: darwin
@@ -29,6 +31,8 @@ spec:
     files:
     - from: "kdiscover"
       to: "kubectl-discover"
+    - from: "LICENSE"
+      to: "."
   # Linux
   - selector:
       matchLabels:
@@ -39,6 +43,8 @@ spec:
     files:
     - from: "kdiscover"
       to: "kubectl-discover"
+    - from: "LICENSE"
+      to: "."
   - selector:
       matchLabels:
         os: linux
@@ -48,6 +54,8 @@ spec:
     files:
     - from: "kdiscover"
       to: "kubectl-discover"
+    - from: "LICENSE"
+      to: "."
   - selector:
       matchLabels:
         os: linux
@@ -57,6 +65,8 @@ spec:
     files:
     - from: "kdiscover"
       to: "kubectl-discover"
+    - from: "LICENSE"
+      to: "."
   # Windows
   - selector:
       matchLabels:
@@ -67,6 +77,8 @@ spec:
     files:
     - from: "kdiscover.exe"
       to: "kubectl-discover.exe"
+    - from: "LICENSE"
+      to: "."
   - selector:
       matchLabels:
         os: windows
@@ -76,6 +88,8 @@ spec:
     files:
     - from: "kdiscover.exe"
       to: "kubectl-discover.exe"
+    - from: "LICENSE"
+      to: "."
   - selector:
       matchLabels:
         os: windows
@@ -85,3 +99,5 @@ spec:
     files:
     - from: "kdiscover.exe"
       to: "kubectl-discover.exe"
+    - from: "LICENSE"
+      to: "."
