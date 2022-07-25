@@ -42,11 +42,11 @@ Currently we suport only EKS clusters but there are plans to support othe k8s pr
 ├────────────────────────────────────────────────────────────────────────────────┤
 │                                   number of clusters  4                        │
 └────────────────────────────────────────────────────────────────────────────────┘
-~ $ kubectl discover discover aws update
+~ $ kubectl discover aws update
 Update all EKS Clusters
 Found 4 clusters remote
 Backup kubeconfig to /Users/tuxy/.kube/config.bak
-~ $ kdiscover aws list
+~ $ kubectl discover aws list
 ┌────────────────────────────────────────────────────────────────────────────────┐
 │     cluster name                  region              status  exported locally │
 ├────────────────────────────────────────────────────────────────────────────────┤
