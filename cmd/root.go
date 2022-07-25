@@ -17,7 +17,7 @@ import (
 const errorExitCode int = 1
 
 var (
-	loggingLevels map[string]log.Level = map[string]log.Level{
+	loggingLevels = map[string]log.Level{
 		"none":  0,
 		"panic": log.PanicLevel,
 		"fatal": log.FatalLevel,
