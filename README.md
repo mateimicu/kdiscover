@@ -17,11 +17,12 @@ Currently we suport only EKS clusters but there are plans to support othe k8s pr
   - [Example](#example)
   - [Demo](#demo)
   - [Install](#install)
-    - [Binary](#binary)
+    - [Krew (Recommended)](#krew-recommended)
     - [MacOs](#macos)
+    - [Binary](#binary)
     - [Go](#go)
   - [Future Plans](#future-plans)
-  - [FAQ](#faq)
+  - [FAQ](docs/FAQ.md)
 
 
 ## Demo
@@ -32,7 +33,7 @@ Currently we suport only EKS clusters but there are plans to support othe k8s pr
 ## Example
 
 ```bash
-~ $ kdiscover aws list
+~ $ kubectl discover aws list
 ┌────────────────────────────────────────────────────────────────────────────────┐
 │     cluster name                  region              status  exported locally │
 ├────────────────────────────────────────────────────────────────────────────────┤
@@ -43,7 +44,7 @@ Currently we suport only EKS clusters but there are plans to support othe k8s pr
 ├────────────────────────────────────────────────────────────────────────────────┤
 │                                   number of clusters  4                        │
 └────────────────────────────────────────────────────────────────────────────────┘
-~ $ kdiscover aws update
+~ $ kubectl discover discover aws update
 Update all EKS Clusters
 Found 4 clusters remote
 Backup kubeconfig to /Users/tuxy/.kube/config.bak
@@ -71,11 +72,16 @@ Columns in the list :
 
 ## Install
 
-### Binary
+## Krew (Recommended)
 
-You can download a specific version from the [release page](https://github.com/mateimicu/kdiscover/releases)
+Using the [Krew](https://krew.sigs.k8s.io/) plugin manager:
 
-### macOs
+```bash
+kubectl krew install discover
+```
+Note that in this context the command will need to invoked using `kubectl discover`.
+
+## macOs
 
 You can also install a binary release on macOS using [brew](https://brew.sh/):
 
@@ -83,44 +89,22 @@ You can also install a binary release on macOS using [brew](https://brew.sh/):
 brew install mateimicu/tap/kdiscover
 brew upgrade mateimicu/tap/kdiscover
 ```
+Note that in this context the executable is name `kdiscover`.
 
-### Go
+## Binary
+
+You can download a specific version from the [release page](https://github.com/mateimicu/kdiscover/releases)
+
+## Go
 
 ```bash
 GO111MODULE=on go get github.com/mateimicu/kdiscover
 ```
 
-## Future Plans
+# Future Plans
 
 
 Development is tracked in [this board](https://github.com/mateimicu/kdiscover/projects/1) and we also have specific [milestones](https://github.com/mateimicu/kdiscover/milestones?direction=asc&sort=due_date)
-
-
-## FAQ
-
-### How does it find clusters ?
-
-It searches for Cluster credentials and trying to list all the clusters on all regions.
-For example in AWS case will look for the normal credential chain then try to list and describe
-all clusters on all regions (from a given partition, see `kdiscover aws --help` expecially `--aws-partitions`)
-
-### What is the heuristic for `exported locally`
-
-The logic is implemented [here](./internal/kubeconfig/kubeconfig.go) in `IsExported` function.
-The basic idea is:
-
- - we have a cluster in kubeconfig with the same endpoint
- - that cluster is referenced in a `context` block (see [Organizing Cluster Access Using kubeconfig Files][kubeconfig-context])
-
-
-### Configur context name with `--context-name-alias`
-
-The [kubeconfig context][kubeconfig-context] is used to identify a cluster and user pair, with the `--context-name-alias` you can provide a go template that will be
-used to generate the name of the context. In the template you have access to the [Cluster struct](https://github.com/mateimicu/kdiscover/blob/master/internal/cluster/cluster.go#L23). The default template is `{{.Name}}`.
-
-
-[kubeconfig-context]: https://kubernetes.io/docs/concepts/configuration/organize-cluster-access-kubeconfig/#context
-
 
 ## License
 [![FOSSA Status](https://app.fossa.com/api/projects/git%2Bgithub.com%2Fmateimicu%2Fkdiscover.svg?type=large)](https://app.fossa.com/projects/git%2Bgithub.com%2Fmateimicu%2Fkdiscover?ref=badge_large)
