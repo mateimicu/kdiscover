@@ -25,10 +25,8 @@ Currently we suport only EKS clusters but there are plans to support othe k8s pr
   - [FAQ](docs/FAQ.md)
 
 
-## Demo
-
-[![asciicast](https://asciinema.org/a/qfxDubtATYtLJ1W1vOK6rBzSE.svg)](https://asciinema.org/a/qfxDubtATYtLJ1W1vOK6rBzSE)
-
+<!--## Demo-->
+<!--[![asciicast](https://asciinema.org/a/qfxDubtATYtLJ1W1vOK6rBzSE.svg)](https://asciinema.org/a/qfxDubtATYtLJ1W1vOK6rBzSE)-->
 
 ## Example
 
