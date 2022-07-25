@@ -5,10 +5,10 @@ metadata:
 spec:
   version: {{ .TagName }}
   homepage: https://github.com/mateimicu/kdiscover
-  shortDescription: "Discover Kubernetes clusters and export configs"
+  shortDescription: "Find/export kubeconfigs for cloud clusters"
   description: |
     Discover all the cluster from a provider (AWS, GCP, Azure, etc)
-    and manage there credentials.
+    and export the kubeconfig credentials.
   platforms:
   # MacOs
   - selector:
