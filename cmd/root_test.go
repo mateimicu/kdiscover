@@ -13,7 +13,7 @@ import (
 	log "github.com/sirupsen/logrus"
 )
 
-// nolint:unused, varcheck, deadcode
+//nolint:unused, varcheck, deadcode
 var update = flag.Bool("update", false, "update .golden files")
 
 var basicCommands = []struct {
