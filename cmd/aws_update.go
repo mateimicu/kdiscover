@@ -112,7 +112,7 @@ func copy(src, dst string) error {
 		return err
 	}
 
-	// nolint: gomnd
+	//nolint: gomnd
 	buf := make([]byte, 1000000)
 	for {
 		n, err := source.Read(buf)
