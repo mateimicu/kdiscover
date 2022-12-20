@@ -4,7 +4,7 @@ go 1.17
 
 require (
 	github.com/Masterminds/semver v1.5.0
-	github.com/aws/aws-sdk-go v1.44.163
+	github.com/aws/aws-sdk-go v1.44.164
 	github.com/jedib0t/go-pretty v4.3.0+incompatible
 	github.com/sirupsen/logrus v1.9.0
 	github.com/spf13/cobra v1.6.1
