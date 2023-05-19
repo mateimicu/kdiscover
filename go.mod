@@ -8,7 +8,7 @@ require (
 	github.com/jedib0t/go-pretty v4.3.0+incompatible
 	github.com/sirupsen/logrus v1.9.0
 	github.com/spf13/cobra v1.6.1
-	github.com/stretchr/testify v1.8.2
+	github.com/stretchr/testify v1.8.3
 	go.hein.dev/go-version v0.1.0
 	k8s.io/client-go v0.26.2
 )
