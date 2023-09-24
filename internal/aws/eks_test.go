@@ -53,7 +53,8 @@ func (c *mockEKSClient) ListClustersPages(_ *eks.ListClustersInput, fn func(*eks
 
 		// prepare clusters
 		for _, cls := range c.Clusters[start:end] {
-			clusters = append(clusters, &cls.Name)
+			localCluster := *cls
+			clusters = append(clusters, &localCluster.Name)
 		}
 		o.Clusters = clusters
 		lastPage := end == len(c.Clusters)
@@ -80,12 +81,13 @@ func (c *mockEKSClient) DescribeCluster(input *eks.DescribeClusterInput) (*eks.D
 	}
 
 	for _, cls := range c.Clusters {
+		localCluster := *cls
 		if *input.Name == cls.Name {
 			cluster := eks.Cluster{}
-			cluster.Arn = &cls.ID
-			cluster.Endpoint = &cls.Endpoint
-			cluster.Name = &cls.Name
-			cluster.Status = &cls.Status
+			cluster.Arn = &localCluster.ID
+			cluster.Endpoint = &localCluster.Endpoint
+			cluster.Name = &localCluster.Name
+			cluster.Status = &localCluster.Status
 
 			cert := eks.Certificate{}
 			data := base64.StdEncoding.EncodeToString([]byte(cls.CertificateAuthorityData))
@@ -238,6 +240,7 @@ func TestGetClustersNoFailure(t *testing.T) {
 	t.Parallel()
 	log.SetOutput(ioutil.Discard)
 	for _, tt := range cases {
+		client := tt.Client
 		describeErrorCount := 0
 		for k := range tt.Client.ErrorOnDescribe {
 			if k > len(tt.Client.Clusters) {
@@ -258,7 +261,7 @@ func TestGetClustersNoFailure(t *testing.T) {
 		t.Run(testname, func(t *testing.T) {
 			ch := make(chan *cluster.Cluster)
 			c := EKSClient{
-				EKS:    &tt.Client,
+				EKS:    &client,
 				Region: tt.Region,
 			}
 			go c.GetClusters(ch)
@@ -311,6 +314,7 @@ func TestGetClustersListFailure(t *testing.T) {
 		},
 	}
 	for _, tt := range tts {
+		client := tt.Client
 		describeErrorCount := 0
 		for k := range tt.Client.ErrorOnDescribe {
 			if k > len(tt.Client.Clusters) {
@@ -331,7 +335,7 @@ func TestGetClustersListFailure(t *testing.T) {
 		t.Run(testname, func(t *testing.T) {
 			ch := make(chan *cluster.Cluster)
 			c := EKSClient{
-				EKS:    &tt.Client,
+				EKS:    &client,
 				Region: tt.Region,
 			}
 			go c.GetClusters(ch)

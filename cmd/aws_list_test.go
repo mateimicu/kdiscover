@@ -13,7 +13,7 @@ import (
 
 type mockExportable struct{}
 
-func (mockExportable) IsExported(cls kubeconfig.Endpointer) bool {
+func (mockExportable) IsExported(_ kubeconfig.Endpointer) bool {
 	return false
 }
 

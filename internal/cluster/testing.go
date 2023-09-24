@@ -27,7 +27,7 @@ func randomString(length int) string {
 	return stringWithCharset(length, charset)
 }
 
-func dummyGenerateAuthInfo(cls *Cluster) *clientcmdapi.AuthInfo {
+func dummyGenerateAuthInfo(_ *Cluster) *clientcmdapi.AuthInfo {
 	return clientcmdapi.NewAuthInfo()
 }
 

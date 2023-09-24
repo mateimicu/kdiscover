@@ -30,7 +30,7 @@ func newAWSCommand() *cobra.Command {
 			// An issue about this https://github.com/spf13/cobra/issues/252
 			root := cmd
 			for ; root.HasParent(); root = root.Parent() {
-			}
+			} //revive:disable-line:empty-block
 			err := root.PersistentPreRunE(cmd, args)
 			if err != nil {
 				return err
