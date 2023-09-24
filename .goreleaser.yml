@@ -37,7 +37,7 @@ changelog:
   skip: false
 
 brews:
-  - tap:
+  - repository:
       owner: mateimicu
       name: homebrew-tap
     commit_author:
