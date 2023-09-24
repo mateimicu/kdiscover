@@ -1,5 +1,5 @@
 # kdiscover
-![CI](https://github.com/mateimicu/kdiscover/workflows/Lint%20&%20build%20Golang%20project/badge.svg?branch=master)
+[![CI](https://github.com/mateimicu/kdiscover/actions/workflows/golang-ci.yaml/badge.svg?branch=master)](https://github.com/mateimicu/kdiscover/actions/workflows/golang-ci.yaml)
 ![CodeQL](https://github.com/mateimicu/kdiscover/workflows/CodeQL/badge.svg)
 [![codecov](https://codecov.io/gh/mateimicu/kdiscover/branch/master/graph/badge.svg)](https://codecov.io/gh/mateimicu/kdiscover)
 ![GitHub release (latest SemVer)](https://img.shields.io/github/v/release/mateimicu/kdiscover?sort=semver)
