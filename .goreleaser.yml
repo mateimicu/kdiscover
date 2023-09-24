@@ -5,14 +5,14 @@ env:
 
 before:
   hooks:
-  - go mod download
+    - go mod download
 
 builds:
   - id: general
     goos:
-    - windows
-    - linux
-    - freebsd
+      - windows
+      - linux
+      - freebsd
 
   - id: macos
     goos:
