@@ -26,7 +26,7 @@ func backupKubeConfig(kubeconfigPath string) (string, error) {
 			"err":             err.Error(),
 		}).Info("Can't generate backup file name ")
 	}
-	err = copy(kubeconfigPath, bName)
+	err = copyFs(kubeconfigPath, bName)
 	if err != nil {
 		return "", err
 	}
@@ -81,7 +81,7 @@ func newUpdateCommand() *cobra.Command {
 	return updateCommand
 }
 
-func copy(src, dst string) error {
+func copyFs(src, dst string) error {
 	sourceFileStat, err := os.Stat(src)
 	if err != nil {
 		return err
