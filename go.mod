@@ -1,6 +1,8 @@
 module github.com/mateimicu/kdiscover
 
-go 1.17
+go 1.21
+
+toolchain go1.24.7
 
 require (
 	github.com/Masterminds/semver v1.5.0
