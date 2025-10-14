@@ -22,6 +22,7 @@ Currently we suport only EKS clusters but there are plans to support othe k8s pr
     - [MacOs](#macos)
     - [Binary](#binary)
     - [Go](#go)
+  - [Shell Completion](#shell-completion)
   - [Future Plans](#future-plans)
   - [FAQ](docs/FAQ.md)
 
@@ -99,6 +100,65 @@ You can download a specific version from the [release page](https://github.com/m
 ```bash
 GO111MODULE=on go get github.com/mateimicu/kdiscover
 ```
+
+## Shell Completion
+
+kdiscover supports autocompletion for bash, zsh, fish, and PowerShell.
+
+### Bash
+
+To load completions in your current shell session:
+```bash
+source <(kdiscover completion bash)
+```
+
+To load completions for every new session, execute once:
+
+#### Linux:
+```bash
+kdiscover completion bash > /etc/bash_completion.d/kdiscover
+```
+
+#### macOS:
+```bash
+kdiscover completion bash > $(brew --prefix)/etc/bash_completion.d/kdiscover
+```
+
+### Zsh
+
+To load completions in your current shell session:
+```bash
+source <(kdiscover completion zsh)
+```
+
+To load completions for every new session, add to your `~/.zshrc`:
+```bash
+# kdiscover completion
+if [[ $commands[kdiscover] ]]; then
+  source <(kdiscover completion zsh)
+fi
+```
+
+### Fish
+
+```bash
+kdiscover completion fish | source
+```
+
+To load completions for each session, execute once:
+```bash
+kdiscover completion fish > ~/.config/fish/completions/kdiscover.fish
+```
+
+### PowerShell
+
+```powershell
+kdiscover completion powershell | Out-String | Invoke-Expression
+```
+
+To load completions for every new session, add the output of the above command to your PowerShell profile.
+
+**Note:** When using `kubectl discover` (via Krew), replace `kdiscover` with `kubectl discover` in the above commands.
 
 # Future Plans
 

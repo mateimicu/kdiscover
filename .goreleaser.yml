@@ -49,3 +49,6 @@ brews:
       system "#{bin}/kdiscover --version"
     install: |
       bin.install "kdiscover"
+      (bash_completion/"kdiscover").write `#{bin}/kdiscover completion bash`
+      (zsh_completion/"_kdiscover").write `#{bin}/kdiscover completion zsh`
+      (fish_completion/"kdiscover.fish").write `#{bin}/kdiscover completion fish`
