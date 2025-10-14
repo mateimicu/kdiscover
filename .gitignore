@@ -80,3 +80,7 @@ tags
 
 # used for making demos, contains sensitive data
 play.sh
+
+# binaries
+kdiscover
+kubectl-discover
