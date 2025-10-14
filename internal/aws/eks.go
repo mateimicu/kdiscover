@@ -115,8 +115,11 @@ func (c *EKSClient) detailCluster(cName string) (*cluster.Cluster, error) {
 }
 
 func NewEKS(region string) (*EKSClient, error) {
-	sess, err := session.NewSession(&aws.Config{
-		Region: aws.String(region),
+	sess, err := session.NewSessionWithOptions(session.Options{
+		Config: aws.Config{
+			Region: aws.String(region),
+		},
+		SharedConfigState: session.SharedConfigEnable,
 	})
 	if err != nil {
 		log.WithFields(log.Fields{

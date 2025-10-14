@@ -360,3 +360,19 @@ func min(x, y int) int {
 	}
 	return x
 }
+
+// TestNewEKSSessionCreation tests that NewEKS can create sessions with SharedConfigState enabled
+// This test verifies the session creation works even without AWS credentials configured
+func TestNewEKSSessionCreation(t *testing.T) {
+	t.Parallel()
+
+	// Test with a valid region
+	client, err := NewEKS("us-east-1")
+
+	// The function should not fail even without AWS credentials,
+	// as session creation itself should succeed
+	assert.NoError(t, err, "NewEKS should create session successfully")
+	assert.NotNil(t, client, "EKSClient should not be nil")
+	assert.Equal(t, "us-east-1", client.Region, "Region should be set correctly")
+	assert.NotNil(t, client.EKS, "EKS service should not be nil")
+}
