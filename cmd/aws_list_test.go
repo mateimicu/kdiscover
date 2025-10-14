@@ -29,7 +29,7 @@ var (
 	}
 )
 
-// Test if the number of Clusters is corectly diplayed
+// Test_getTable tests the internal getTable function for formatting cluster output
 func Test_getTable(t *testing.T) {
 	for _, tt := range tableCases {
 		testname := fmt.Sprintf("Clusters %v", tt.Clusters)
@@ -45,6 +45,7 @@ func Test_getTable(t *testing.T) {
 	}
 }
 
+// Test_getTableBrokenTemplate tests the internal getTable function with a broken template
 func Test_getTableBrokenTemplate(t *testing.T) {
 	for _, tt := range tableCases {
 		testname := fmt.Sprintf("Clusters %v", tt.Clusters)
