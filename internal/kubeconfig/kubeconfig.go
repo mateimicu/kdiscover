@@ -2,6 +2,8 @@
 package kubeconfig
 
 import (
+	"fmt"
+	"io"
 	"os"
 
 	cluster "github.com/mateimicu/kdiscover/internal/cluster"
@@ -94,6 +96,50 @@ func (k *Kubeconfig) IsExported(cls Endpointer) bool {
 		}
 	}
 	return false
+}
+
+// BackupKubeconfig creates a backup of the kubeconfig file
+func BackupKubeconfig(kubeconfigPath string) error {
+	if !fileExists(kubeconfigPath) {
+		return nil // No file to backup
+	}
+	
+	backupPath := kubeconfigPath + ".bak"
+	return copyFile(kubeconfigPath, backupPath)
+}
+
+func fileExists(filename string) bool {
+	info, err := os.Stat(filename)
+	if os.IsNotExist(err) {
+		return false
+	}
+	return !info.IsDir()
+}
+
+func copyFile(src, dst string) error {
+	sourceFileStat, err := os.Stat(src)
+	if err != nil {
+		return err
+	}
+
+	if !sourceFileStat.Mode().IsRegular() {
+		return fmt.Errorf("%s is not a regular file", src)
+	}
+
+	source, err := os.Open(src)
+	if err != nil {
+		return err
+	}
+	defer source.Close()
+
+	destination, err := os.Create(dst)
+	if err != nil {
+		return err
+	}
+	defer destination.Close()
+
+	_, err = io.Copy(destination, source)
+	return err
 }
 
 func getKubeConfig(kubeconfigPath string) (*clientcmdapi.Config, error) {

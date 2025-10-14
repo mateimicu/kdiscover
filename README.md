@@ -12,7 +12,7 @@
 Kdiscover is a simple utility to list and configure access to all clusters it can find.
 The basic usecase revolves in having access to a lot of clusters but you still need to discover and export apposite kubeconfig.
 
-Currently we suport only EKS clusters but there are plans to support othe k8s providers (GKE, AKE, etc ...)
+Currently we support EKS (AWS) and AKS (Azure) clusters with plans to support other k8s providers (GKE, etc ...)
 
 - [kdiscover](#kdiscover)
   - [Example](#example)
@@ -58,6 +58,26 @@ Backup kubeconfig to /Users/tuxy/.kube/config.bak
 ├────────────────────────────────────────────────────────────────────────────────┤
 │                                   number of clusters  4                        │
 └────────────────────────────────────────────────────────────────────────────────┘
+```
+
+### AKS Example
+
+```bash
+~ $ kubectl discover aks list --azure-subscriptions subscription-id-123
+┌────────────────────────────────────────────────────────────────────────────────┐
+│     cluster name                  region              status  exported locally │
+├────────────────────────────────────────────────────────────────────────────────┤
+│  1  production-aks                eastus              Succeeded       No       │
+│  2  staging-aks                   westus2             Succeeded       No       │
+│  3  dev-aks                       centralus           Succeeded       No       │
+├────────────────────────────────────────────────────────────────────────────────┤
+│                                   number of clusters  3                        │
+└────────────────────────────────────────────────────────────────────────────────┘
+~ $ kubectl discover aks update --azure-subscriptions subscription-id-123
+Update all AKS Clusters
+Found 3 clusters remote
+Backup kubeconfig to /Users/tuxy/.kube/config.bak
+Updated kubeconfig at /Users/tuxy/.kube/config
 ```
 
 
