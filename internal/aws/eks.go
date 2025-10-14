@@ -92,6 +92,17 @@ func (c *EKSClient) detailCluster(cName string) (*cluster.Cluster, error) {
 		return nil, errors.New(msg)
 	}
 
+	// Check if the cluster is still creating - certificate authority may not be available yet
+	if result.Cluster.CertificateAuthority == nil || result.Cluster.CertificateAuthority.Data == nil {
+		msg := fmt.Sprintf("Cluster %v is still creating or certificate authority is not available yet", cName)
+		log.WithFields(log.Fields{
+			"cluster-name": cName,
+			"status":       *result.Cluster.Status,
+			"svc":          c.String(),
+		}).Warn(msg)
+		return nil, errors.New(msg)
+	}
+
 	certificatAuthorityData, err := base64.StdEncoding.DecodeString(*result.Cluster.CertificateAuthority.Data)
 	if err != nil {
 		log.WithFields(log.Fields{

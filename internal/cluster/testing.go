@@ -62,3 +62,17 @@ func GetPredictableMockClusters(c int) []*Cluster {
 	}
 	return d
 }
+
+// GetMockClusterWithStatus creates a single mock cluster with the specified status
+func GetMockClusterWithStatus(status string) *Cluster {
+	c := NewCluster()
+	c.Name = fmt.Sprintf("cluster-name-%s", status)
+	c.Region = "test-region"
+	c.ID = fmt.Sprintf("cluster-id-%s", status)
+	c.Status = status
+	c.Endpoint = fmt.Sprintf("cluster-endpoint-%s", status)
+	c.CertificateAuthorityData = fmt.Sprintf("cluster-certificate-authority-data-%s", status)
+	c.GenerateClusterConfig = defaultGenerateClusterConfig
+	c.GenerateAuthInfo = dummyGenerateAuthInfo
+	return c
+}

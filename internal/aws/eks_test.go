@@ -89,10 +89,21 @@ func (c *mockEKSClient) DescribeCluster(input *eks.DescribeClusterInput) (*eks.D
 			cluster.Name = &localCluster.Name
 			cluster.Status = &localCluster.Status
 
-			cert := eks.Certificate{}
-			data := base64.StdEncoding.EncodeToString([]byte(cls.CertificateAuthorityData))
-			cert.Data = &data
-			cluster.CertificateAuthority = &cert
+			// Simulate clusters that are still creating by having nil certificate authority
+			// when the status indicates the cluster is still being created
+			if localCluster.Status == "CREATING" {
+				cluster.CertificateAuthority = nil
+			} else if localCluster.Status == "UPDATING" {
+				// Test case where certificate authority exists but Data is nil
+				cert := eks.Certificate{}
+				cert.Data = nil
+				cluster.CertificateAuthority = &cert
+			} else {
+				cert := eks.Certificate{}
+				data := base64.StdEncoding.EncodeToString([]byte(cls.CertificateAuthorityData))
+				cert.Data = &data
+				cluster.CertificateAuthority = &cert
+			}
 
 			// TODO(mmicu): populate cluster data here
 			out := eks.DescribeClusterOutput{}
@@ -359,4 +370,74 @@ func min(x, y int) int {
 		return y
 	}
 	return x
+}
+
+func TestGetClustersCreatingCluster(t *testing.T) {
+	t.Parallel()
+	log.SetOutput(ioutil.Discard)
+
+	// Test case with a cluster that has status "CREATING" - this should trigger the nil certificate authority
+	creatingCluster := cluster.GetMockClusterWithStatus("CREATING")
+	
+	// Test case with a cluster that has status "UPDATING" - this should trigger the nil certificate data
+	updatingCluster := cluster.GetMockClusterWithStatus("UPDATING")
+	
+	testCases := []struct {
+		name     string
+		clusters []*cluster.Cluster
+	}{
+		{
+			name:     "CREATING cluster with nil certificate authority",
+			clusters: []*cluster.Cluster{creatingCluster},
+		},
+		{
+			name:     "UPDATING cluster with nil certificate data",
+			clusters: []*cluster.Cluster{updatingCluster},
+		},
+		{
+			name:     "Mixed clusters with different statuses",
+			clusters: []*cluster.Cluster{creatingCluster, updatingCluster},
+		},
+	}
+
+	for _, tc := range testCases {
+		t.Run(tc.name, func(t *testing.T) {
+			testCase := testCase{
+				Client: mockEKSClient{
+					Clusters:          tc.clusters,
+					PageSize:          len(tc.clusters),
+					ErrorOnDescribe:   map[int]error{},
+					ErrorOnList:       map[int]error{},
+					ListCallCount:     0,
+					DescribeCallCount: 0,
+				},
+				Region: "fakeRegion",
+			}
+
+			client := testCase.Client
+			
+			ch := make(chan *cluster.Cluster)
+			c := EKSClient{
+				EKS:    &client,
+				Region: testCase.Region,
+			}
+			
+			// This should not panic with the fix
+			defer func() {
+				if r := recover(); r != nil {
+					t.Errorf("GetClusters panicked when processing clusters: %v", r)
+				}
+			}()
+			
+			go c.GetClusters(ch)
+			clusters := []*cluster.Cluster{}
+			for c := range ch {
+				clusters = append(clusters, c)
+			}
+
+			// Since the clusters are CREATING/UPDATING and have no/nil certificate authority,
+			// they should be skipped and not returned
+			assert.Equal(t, 0, len(clusters))
+		})
+	}
 }
