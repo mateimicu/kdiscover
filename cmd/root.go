@@ -34,9 +34,9 @@ var (
 func NewRootCommand(version, commit, date, commandPrefix string) *cobra.Command {
 	rootCmd := &cobra.Command{
 		Use:   commandPrefix,
-		Short: "Discover all EKS clusters on an account.",
+		Short: "Discover all EKS and GKE clusters.",
 		Long: `kdiscover is a simple utility that can search
-all regions on an AWS account and try to find all EKS clsuters.
+all regions on an AWS account and GCP projects to find all EKS and GKE clusters.
 It will try to upgrade the kube-config for each cluster.`,
 
 		PersistentPreRunE: func(cmd *cobra.Command, args []string) error {
@@ -72,6 +72,7 @@ It will try to upgrade the kube-config for each cluster.`,
 		"Path to the kubeconfig to work with")
 
 	rootCmd.AddCommand(newAWSCommand())
+	rootCmd.AddCommand(newGKECommand())
 	rootCmd.AddCommand(newVersionCommand(version, commit, date))
 	return rootCmd
 }
