@@ -16,6 +16,7 @@ const (
 	AWS
 	Google
 	Azure
+	DigitalOcean
 )
 
 // Cluster is the representation of a K8S Cluster
