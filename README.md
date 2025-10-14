@@ -12,11 +12,13 @@
 Kdiscover is a simple utility to list and configure access to all clusters it can find.
 The basic usecase revolves in having access to a lot of clusters but you still need to discover and export apposite kubeconfig.
 
-Currently we suport only EKS clusters but there are plans to support othe k8s providers (GKE, AKE, etc ...)
+Currently we support EKS clusters (AWS) and DOKS clusters (DigitalOcean) with plans to support other k8s providers (GKE, AKE, etc ...)
 
 - [kdiscover](#kdiscover)
   - [Example](#example)
-  - [Demo](#demo)
+  - [Configuration](#configuration)
+    - [AWS EKS](#aws-eks)
+    - [DigitalOcean DOKS](#digitalocean-doks)
   - [Install](#install)
     - [Krew (Recommended)](#krew-recommended)
     - [MacOs](#macos)
@@ -60,6 +62,34 @@ Backup kubeconfig to /Users/tuxy/.kube/config.bak
 └────────────────────────────────────────────────────────────────────────────────┘
 ```
 
+### DigitalOcean Example
+
+```bash
+~ $ export DIGITALOCEAN_TOKEN=your_token_here
+~ $ kubectl discover digitalocean list
+┌───────────────────────────────────────────────────────────────┐
+│    cluster name              region  status  exported locally │
+├───────────────────────────────────────────────────────────────┤
+│ 1  production-cluster        nyc1    running         No       │
+│ 2  staging-cluster           sfo3    running         No       │
+├───────────────────────────────────────────────────────────────┤
+│                  number of clusters       2                   │
+└───────────────────────────────────────────────────────────────┘
+~ $ kubectl discover do update
+Update all DOKS Clusters
+Found 2 clusters remote
+Backup kubeconfig to /Users/tuxy/.kube/config.bak
+~ $ kubectl discover do list
+┌───────────────────────────────────────────────────────────────┐
+│    cluster name              region  status  exported locally │
+├───────────────────────────────────────────────────────────────┤
+│ 1  production-cluster        nyc1    running        Yes       │
+│ 2  staging-cluster           sfo3    running        Yes       │
+├───────────────────────────────────────────────────────────────┤
+│                  number of clusters       2                   │
+└───────────────────────────────────────────────────────────────┘
+```
+
 
 Columns in the list :
 
@@ -67,6 +97,45 @@ Columns in the list :
 - `region` region where the cluster is deployed (it is cloud specific)
 - `status` this is reported by the cloud, if the cluster is up or in another state (modifying, down, creating ... etc)
 - `exported locally` uses an heuristic too see if the local config already has information about this cluster
+
+
+## Configuration
+
+### AWS EKS
+
+For AWS EKS clusters, kdiscover uses the standard AWS credential chain. You can configure AWS credentials using any of the following methods:
+
+- AWS CLI: `aws configure`
+- Environment variables: `AWS_ACCESS_KEY_ID` and `AWS_SECRET_ACCESS_KEY`
+- IAM roles (when running on EC2)
+- AWS profiles
+
+Make sure you have the necessary permissions to list and describe EKS clusters.
+
+### DigitalOcean DOKS
+
+For DigitalOcean DOKS clusters, you need to set the `DIGITALOCEAN_TOKEN` environment variable:
+
+```bash
+export DIGITALOCEAN_TOKEN=your_token_here
+```
+
+You can generate a token in the [DigitalOcean Control Panel](https://cloud.digitalocean.com/account/api/tokens).
+
+Additionally, for authentication with clusters, you'll need `doctl` installed and configured:
+
+```bash
+# Install doctl (macOS)
+brew install doctl
+
+# Install doctl (Linux)
+curl -OL https://github.com/digitalocean/doctl/releases/download/v1.92.0/doctl-1.92.0-linux-amd64.tar.gz
+tar xf doctl-1.92.0-linux-amd64.tar.gz
+sudo mv doctl /usr/local/bin
+
+# Authenticate doctl
+doctl auth init --access-token $DIGITALOCEAN_TOKEN
+```
 
 
 ## Install
