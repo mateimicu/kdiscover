@@ -38,9 +38,21 @@ type ClusterGetter interface {
 }
 
 func GetEKSClusters(regions []string) []*cluster.Cluster {
+	return GetEKSClustersWithProgress(regions, nil)
+}
+
+// GetEKSClustersWithProgress will query the given regions and return a list of
+// clusters accessible. It will use the default credential chain for AWS
+// in order to figure out the context for the API calls. 
+// The progressCallback function is called for each region being processed.
+func GetEKSClustersWithProgress(regions []string, progressCallback func(region string, regionIndex, totalRegions int)) []*cluster.Cluster {
 	clients := make([]ClusterGetter, 0, len(regions))
 
-	for _, region := range regions {
+	for i, region := range regions {
+		if progressCallback != nil {
+			progressCallback(region, i, len(regions))
+		}
+		
 		log.WithFields(log.Fields{
 			"region": region,
 		}).Info("Initialize client")

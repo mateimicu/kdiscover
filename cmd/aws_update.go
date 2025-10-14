@@ -40,10 +40,19 @@ func newUpdateCommand() *cobra.Command {
 		RunE: func(cmd *cobra.Command, args []string) error {
 			cmd.Println(cmd.Short)
 
-			remoteEKSClusters := aws.GetEKSClusters(awsRegions)
+			cmd.Printf("Querying %d regions for EKS clusters...\n", len(awsRegions))
+			
+			remoteEKSClusters := aws.GetEKSClustersWithProgress(awsRegions, func(region string, regionIndex, totalRegions int) {
+				cmd.Printf("Progress: [%d/%d] Querying region %s\n", regionIndex+1, totalRegions, region)
+			})
 			log.Info(remoteEKSClusters)
 
-			cmd.Printf("Found %v clusters remote\n", len(remoteEKSClusters))
+			cmd.Printf("Found %v clusters across all regions\n", len(remoteEKSClusters))
+
+			if len(remoteEKSClusters) == 0 {
+				cmd.Println("No clusters found - nothing to export to kubeconfig")
+				return nil
+			}
 
 			if backupKubeconfig && fileExists(kubeconfigPath) {
 				bName, err := backupKubeConfig(kubeconfigPath)
@@ -57,7 +66,9 @@ func newUpdateCommand() *cobra.Command {
 				return err
 			}
 
-			for _, cls := range remoteEKSClusters {
+			exportedCount := 0
+			for i, cls := range remoteEKSClusters {
+				cmd.Printf("Progress: [%d/%d] Exporting cluster %s from region %s\n", i+1, len(remoteEKSClusters), cls.Name, cls.Region)
 				ctxName, err := cls.PrettyName(alias)
 				if err != nil {
 					log.WithFields(log.Fields{
@@ -67,7 +78,9 @@ func newUpdateCommand() *cobra.Command {
 					continue
 				}
 				kubeconfig.AddCluster(cls, ctxName)
+				exportedCount++
 			}
+			cmd.Printf("Successfully exported %d clusters to kubeconfig\n", exportedCount)
 			err = kubeconfig.Persist(kubeconfigPath)
 			if err != nil {
 				cmd.Printf("Failed to persist kubeconfig %v", err.Error())
