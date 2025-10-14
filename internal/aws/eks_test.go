@@ -378,10 +378,10 @@ func TestGetClustersCreatingCluster(t *testing.T) {
 
 	// Test case with a cluster that has status "CREATING" - this should trigger the nil certificate authority
 	creatingCluster := cluster.GetMockClusterWithStatus("CREATING")
-	
+
 	// Test case with a cluster that has status "UPDATING" - this should trigger the nil certificate data
 	updatingCluster := cluster.GetMockClusterWithStatus("UPDATING")
-	
+
 	testCases := []struct {
 		name     string
 		clusters []*cluster.Cluster
@@ -415,20 +415,20 @@ func TestGetClustersCreatingCluster(t *testing.T) {
 			}
 
 			client := testCase.Client
-			
+
 			ch := make(chan *cluster.Cluster)
 			c := EKSClient{
 				EKS:    &client,
 				Region: testCase.Region,
 			}
-			
+
 			// This should not panic with the fix
 			defer func() {
 				if r := recover(); r != nil {
 					t.Errorf("GetClusters panicked when processing clusters: %v", r)
 				}
 			}()
-			
+
 			go c.GetClusters(ch)
 			clusters := []*cluster.Cluster{}
 			for c := range ch {
