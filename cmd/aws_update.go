@@ -16,6 +16,7 @@ import (
 
 var (
 	backupKubeconfig bool
+	onlyNew          bool
 )
 
 func backupKubeConfig(kubeconfigPath string) (string, error) {
@@ -36,7 +37,7 @@ func backupKubeConfig(kubeconfigPath string) (string, error) {
 func newUpdateCommand() *cobra.Command {
 	updateCommand := &cobra.Command{
 		Use:   "update",
-		Short: "Update all EKS Clusters",
+		Short: "Update kubeconfig with EKS clusters",
 		RunE: func(cmd *cobra.Command, args []string) error {
 			cmd.Println(cmd.Short)
 
@@ -57,6 +58,8 @@ func newUpdateCommand() *cobra.Command {
 				return err
 			}
 
+			exportedCount := 0
+			newCount := 0
 			for _, cls := range remoteEKSClusters {
 				ctxName, err := cls.PrettyName(alias)
 				if err != nil {
@@ -66,7 +69,22 @@ func newUpdateCommand() *cobra.Command {
 					}).Info("Can't generate alias for the cluster")
 					continue
 				}
+				
+				if onlyNew && kubeconfig.IsExported(cls) {
+					exportedCount++
+					log.WithFields(log.Fields{
+						"cluster": cls.GetName(),
+						"endpoint": cls.GetEndpoint(),
+					}).Debug("Skipping already exported cluster")
+					continue
+				}
+				
 				kubeconfig.AddCluster(cls, ctxName)
+				newCount++
+			}
+			
+			if onlyNew {
+				cmd.Printf("Added %v new clusters, skipped %v already exported clusters\n", newCount, exportedCount)
 			}
 			err = kubeconfig.Persist(kubeconfigPath)
 			if err != nil {
@@ -77,6 +95,7 @@ func newUpdateCommand() *cobra.Command {
 	}
 
 	updateCommand.Flags().BoolVar(&backupKubeconfig, "backup-kubeconfig", true, "Backup cubeconfig before update")
+	updateCommand.Flags().BoolVar(&onlyNew, "only-new", false, "Only export clusters that are not already exported to kubeconfig")
 
 	return updateCommand
 }

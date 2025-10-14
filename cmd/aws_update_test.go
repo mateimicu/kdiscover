@@ -6,6 +6,9 @@ import (
 	"os"
 	"path/filepath"
 	"testing"
+
+	"github.com/mateimicu/kdiscover/internal/cluster"
+	"github.com/mateimicu/kdiscover/internal/kubeconfig"
 )
 
 func Test_generateBackupNameNoConflict(t *testing.T) {
@@ -74,5 +77,62 @@ func Test_fileExistsFile(t *testing.T) {
 
 	if !fileExists(path) {
 		t.Errorf("Return false on file %v", path)
+	}
+}
+
+func Test_onlyNewFlagLogic(t *testing.T) {
+	// Create test clusters
+	mockClusters := cluster.GetPredictableMockClusters(3)
+	
+	// Create a temporary kubeconfig file
+	dir, err := ioutil.TempDir("", "kubeconfig-test")
+	if err != nil {
+		t.Fatal(err)
+	}
+	defer os.RemoveAll(dir)
+	
+	kubeconfigPath := filepath.Join(dir, "config")
+	
+	// Create a kubeconfig with one cluster already exported
+	kc := kubeconfig.New()
+	kc.AddCluster(mockClusters[0], "existing-cluster")
+	if err := kc.Persist(kubeconfigPath); err != nil {
+		t.Fatal(err)
+	}
+	
+	// Load the kubeconfig back
+	loadedKc, err := kubeconfig.LoadKubeconfig(kubeconfigPath)
+	if err != nil {
+		t.Fatal(err)
+	}
+	
+	// Test that first cluster is exported, others are not
+	if !loadedKc.IsExported(mockClusters[0]) {
+		t.Error("Expected first cluster to be exported")
+	}
+	if loadedKc.IsExported(mockClusters[1]) {
+		t.Error("Expected second cluster to not be exported")
+	}
+	if loadedKc.IsExported(mockClusters[2]) {
+		t.Error("Expected third cluster to not be exported")
+	}
+	
+	// Test the filtering logic (what would happen with onlyNew flag)
+	exportedCount := 0
+	newCount := 0
+	
+	for _, cls := range mockClusters {
+		if loadedKc.IsExported(cls) {
+			exportedCount++
+		} else {
+			newCount++
+		}
+	}
+	
+	if exportedCount != 1 {
+		t.Errorf("Expected 1 exported cluster, got %d", exportedCount)
+	}
+	if newCount != 2 {
+		t.Errorf("Expected 2 new clusters, got %d", newCount)
 	}
 }
