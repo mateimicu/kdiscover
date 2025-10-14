@@ -45,6 +45,7 @@ func newUpdateCommand() *cobra.Command {
 
 			cmd.Printf("Found %v clusters remote\n", len(remoteEKSClusters))
 
+			kubeconfigPath := GetKubeconfigPath()
 			if backupKubeconfig && fileExists(kubeconfigPath) {
 				bName, err := backupKubeConfig(kubeconfigPath)
 				if err != nil {

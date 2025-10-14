@@ -55,7 +55,7 @@ func TestQueryAllRegions(t *testing.T) {
 			defer hook.Reset()
 			tt.Cmd = append(tt.Cmd, []string{
 				"--log-level", "debug",
-				"--kubeconfig-path", kubeconfigPath,
+				"--kubeconfig", kubeconfigPath,
 				"--aws-partitions", strings.Join(tt.Partitions, ","),
 			}...)
 

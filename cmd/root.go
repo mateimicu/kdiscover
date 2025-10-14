@@ -10,6 +10,7 @@ import (
 
 	"github.com/mateimicu/kdiscover/internal/kubeconfig"
 	"github.com/spf13/cobra"
+	"k8s.io/cli-runtime/pkg/genericclioptions"
 
 	log "github.com/sirupsen/logrus"
 )
@@ -27,11 +28,14 @@ var (
 		"debug": log.DebugLevel,
 		"trace": log.TraceLevel,
 	}
-	kubeconfigPath string
-	logLevel       string
+	logLevel     string
+	configFlags  *genericclioptions.ConfigFlags
 )
 
 func NewRootCommand(version, commit, date, commandPrefix string) *cobra.Command {
+	// Initialize cli-runtime config flags
+	configFlags = genericclioptions.NewConfigFlags(true)
+	
 	rootCmd := &cobra.Command{
 		Use:   commandPrefix,
 		Short: "Discover all EKS clusters on an account.",
@@ -65,11 +69,8 @@ It will try to upgrade the kube-config for each cluster.`,
 		"none",
 		fmt.Sprintf("Set logging lvl. Supported %v", getAllLogglingLevels()))
 
-	rootCmd.PersistentFlags().StringVar(
-		&kubeconfigPath,
-		"kubeconfig-path",
-		kubeconfig.GetDefaultKubeconfigPath(),
-		"Path to the kubeconfig to work with")
+	// Add cli-runtime flags (including kubeconfig, context, namespace, etc.)
+	configFlags.AddFlags(rootCmd.PersistentFlags())
 
 	rootCmd.AddCommand(newAWSCommand())
 	rootCmd.AddCommand(newVersionCommand(version, commit, date))
@@ -97,4 +98,12 @@ func getAllLogglingLevels() []string {
 	}
 
 	return keys
+}
+
+// GetKubeconfigPath returns the kubeconfig path from cli-runtime
+func GetKubeconfigPath() string {
+	if configFlags != nil && configFlags.KubeConfig != nil && *configFlags.KubeConfig != "" {
+		return *configFlags.KubeConfig
+	}
+	return kubeconfig.GetDefaultKubeconfigPath()
 }

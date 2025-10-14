@@ -82,7 +82,7 @@ func newListCommand() *cobra.Command {
 		RunE: func(cmd *cobra.Command, args []string) error {
 			remoteEKSClusters := aws.GetEKSClusters(awsRegions)
 			log.Info(remoteEKSClusters)
-			k, err := kubeconfig.LoadKubeconfig(kubeconfigPath)
+			k, err := kubeconfig.LoadKubeconfig(GetKubeconfigPath())
 			if err != nil {
 				return err
 			}

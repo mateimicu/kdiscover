@@ -5,7 +5,6 @@ import (
 	"fmt"
 
 	"github.com/mateimicu/kdiscover/internal/aws"
-	"github.com/mateimicu/kdiscover/internal/kubeconfig"
 	"github.com/spf13/cobra"
 
 	log "github.com/sirupsen/logrus"
@@ -64,11 +63,6 @@ func newAWSCommand() *cobra.Command {
 		"aws-partitions",
 		[]string{"aws"},
 		fmt.Sprintf("In what partitions to search for clusters. Supported %v", aws.AllowedParitions()))
-	AWSCommand.PersistentFlags().StringVar(
-		&kubeconfigPath,
-		"kubeconfig-path",
-		kubeconfig.GetDefaultKubeconfigPath(),
-		"Path to the kubeconfig to work with")
 	AWSCommand.PersistentFlags().StringVar(
 		&alias,
 		"context-name-alias",

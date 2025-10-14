@@ -24,7 +24,7 @@ func newVersionCommand(version, commit, date string) *cobra.Command {
 		},
 	}
 
-	versionCmd.Flags().BoolVarP(&shortened, "short", "s", false, "Print just the version number.")
+	versionCmd.Flags().BoolVar(&shortened, "short", false, "Print just the version number.")
 	versionCmd.Flags().StringVarP(&output, "output", "o", "json", "Output format. One of 'yaml' or 'json'.")
 
 	return versionCmd
