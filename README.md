@@ -12,10 +12,13 @@
 Kdiscover is a simple utility to list and configure access to all clusters it can find.
 The basic usecase revolves in having access to a lot of clusters but you still need to discover and export apposite kubeconfig.
 
-Currently we suport only EKS clusters but there are plans to support othe k8s providers (GKE, AKE, etc ...)
+Currently we support EKS (AWS) and GKE (Google Cloud) clusters with plans to support other k8s providers (AKS, etc ...).
 
 - [kdiscover](#kdiscover)
   - [Example](#example)
+    - [AWS EKS Clusters](#aws-eks-clusters)
+    - [Google GKE Clusters](#google-gke-clusters)
+  - [Prerequisites](#prerequisites)
   - [Demo](#demo)
   - [Install](#install)
     - [Krew (Recommended)](#krew-recommended)
@@ -30,6 +33,8 @@ Currently we suport only EKS clusters but there are plans to support othe k8s pr
 <!--[![asciicast](https://asciinema.org/a/qfxDubtATYtLJ1W1vOK6rBzSE.svg)](https://asciinema.org/a/qfxDubtATYtLJ1W1vOK6rBzSE)-->
 
 ## Example
+
+### AWS EKS Clusters
 
 ```bash
 ~ $ kubectl discover aws list
@@ -47,6 +52,26 @@ Currently we suport only EKS clusters but there are plans to support othe k8s pr
 Update all EKS Clusters
 Found 4 clusters remote
 Backup kubeconfig to /Users/tuxy/.kube/config.bak
+```
+
+### Google GKE Clusters
+
+```bash
+~ $ kubectl discover gke list
+┌────────────────────────────────────────────────────────────────────────────────┐
+│     cluster name                  region              status  exported locally │
+├────────────────────────────────────────────────────────────────────────────────┤
+│  1  production-gke                us-central1-a       RUNNING         No       │
+│  2  staging-gke                   us-central1-b       RUNNING         No       │
+│  3  dev-gke                       europe-west1-a      RUNNING         No       │
+├────────────────────────────────────────────────────────────────────────────────┤
+│                                   number of clusters  3                        │
+└────────────────────────────────────────────────────────────────────────────────┘
+~ $ kubectl discover gke update --gcp-projects my-project --gcp-zones us-central1-a,europe-west1-a
+Update all GKE Clusters
+Found 2 clusters remote
+Backup kubeconfig to /Users/tuxy/.kube/config.bak
+```
 ~ $ kubectl discover aws list
 ┌────────────────────────────────────────────────────────────────────────────────┐
 │     cluster name                  region              status  exported locally │
@@ -67,6 +92,22 @@ Columns in the list :
 - `region` region where the cluster is deployed (it is cloud specific)
 - `status` this is reported by the cloud, if the cluster is up or in another state (modifying, down, creating ... etc)
 - `exported locally` uses an heuristic too see if the local config already has information about this cluster
+
+## Prerequisites
+
+### For AWS EKS clusters
+- AWS CLI configured with appropriate credentials
+- IAM permissions to list and describe EKS clusters
+
+### For Google GKE clusters
+- `gcloud` CLI installed and authenticated
+- `gke-gcloud-auth-plugin` installed for cluster authentication:
+  ```bash
+  gcloud components install gke-gcloud-auth-plugin
+  ```
+- GCP credentials configured (via `gcloud auth login` or service account)
+- IAM permissions to list GKE clusters and access Container API
+- Set environment variable: `export USE_GKE_GCLOUD_AUTH_PLUGIN=True`
 
 
 ## Install

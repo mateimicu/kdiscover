@@ -2,9 +2,12 @@
 
 ### How does it find clusters ?
 
-It searches for Cluster credentials and trying to list all the clusters on all regions.
-For example in AWS case will look for the normal credential chain then try to list and describe
-all clusters on all regions (from a given partition, see `kdiscover aws --help` expecially `--aws-partitions`)
+It searches for Cluster credentials and tries to list all the clusters on all regions/zones.
+For AWS EKS, it looks for the normal credential chain then tries to list and describe
+all clusters on all regions (from a given partition, see `kdiscover aws --help` especially `--aws-partitions`).
+
+For Google GKE, it uses Application Default Credentials (ADC) and tries to list clusters
+in all specified projects and zones (see `kdiscover gke --help` for options `--gcp-projects` and `--gcp-zones`).
 
 ### What is the heuristic for `exported locally`
 
