@@ -80,3 +80,6 @@ tags
 
 # used for making demos, contains sensitive data
 play.sh
+
+# Build binary
+kdiscover
