@@ -39,4 +39,9 @@ issues:
 
 linters-settings:
   errcheck:
-    exclude: .errcheck-exclude
+    exclude-functions:
+      - io/ioutil.ReadFile
+      - io.Copy(*bytes.Buffer)
+      - io.Copy(os.Stdout)
+      - (*net/http.Client).Do
+      - (*os.File).Close

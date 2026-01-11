@@ -17,7 +17,7 @@ func newVersionCommand(version, commit, date string) *cobra.Command {
 		Short: "Version will output the current build information",
 		Long:  "",
 
-		RunE: func(cmd *cobra.Command, args []string) error {
+		RunE: func(cmd *cobra.Command, _ []string) error {
 			resp := goversion.FuncWithOutput(shortened, version, commit, date, output)
 			cmd.Print(resp)
 			return nil

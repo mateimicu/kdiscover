@@ -37,7 +37,7 @@ func newUpdateCommand() *cobra.Command {
 	updateCommand := &cobra.Command{
 		Use:   "update",
 		Short: "Update all EKS Clusters",
-		RunE: func(cmd *cobra.Command, args []string) error {
+		RunE: func(cmd *cobra.Command, _ []string) error {
 			cmd.Println(cmd.Short)
 
 			remoteEKSClusters := aws.GetEKSClusters(awsRegions)

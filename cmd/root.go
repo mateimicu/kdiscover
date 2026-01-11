@@ -39,7 +39,7 @@ func NewRootCommand(version, commit, date, commandPrefix string) *cobra.Command 
 all regions on an AWS account and try to find all EKS clsuters.
 It will try to upgrade the kube-config for each cluster.`,
 
-		PersistentPreRunE: func(cmd *cobra.Command, args []string) error {
+		PersistentPreRunE: func(_ *cobra.Command, _ []string) error {
 			if logLevel == "none" {
 				log.SetOutput(io.Discard)
 				return nil
