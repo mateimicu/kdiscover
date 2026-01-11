@@ -3,7 +3,6 @@ package cmd
 
 import (
 	"fmt"
-	"io/ioutil"
 	"os"
 	"path/filepath"
 	"strings"
@@ -23,7 +22,7 @@ func Test_Version(t *testing.T) {
 	for _, tt := range cases {
 		testname := fmt.Sprintf("command %v", tt.Cmd)
 		t.Run(testname, func(t *testing.T) {
-			dir, err := ioutil.TempDir("", ".kube")
+			dir, err := os.MkdirTemp("", ".kube")
 			if err != nil {
 				t.Error(err.Error())
 			}

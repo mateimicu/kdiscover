@@ -4,7 +4,7 @@ package cmd
 import (
 	"flag"
 	"fmt"
-	"io/ioutil"
+	"io"
 	"os"
 	"path/filepath"
 	"strings"
@@ -39,7 +39,7 @@ func Test_CascadingPersistPreRunEHackWithLoggingLevels(t *testing.T) {
 		for k, exp := range loggingLevels {
 			testname := fmt.Sprintf("command %v and logging lvl %v", tt.cmd, k)
 			t.Run(testname, func(t *testing.T) {
-				dir, err := ioutil.TempDir("", ".kube")
+				dir, err := os.MkdirTemp("", ".kube")
 				if err != nil {
 					t.Error(err.Error())
 				}
@@ -47,8 +47,8 @@ func Test_CascadingPersistPreRunEHackWithLoggingLevels(t *testing.T) {
 
 				kubeconfigPath := filepath.Join(dir, "kubeconfig")
 				cmd := NewRootCommand("", "", "", tt.context)
-				cmd.SetOut(ioutil.Discard)
-				cmd.SetErr(ioutil.Discard)
+				cmd.SetOut(io.Discard)
+				cmd.SetErr(io.Discard)
 
 				tt.cmd = append(tt.cmd, "--log-level", k, "--kubeconfig-path", kubeconfigPath)
 
@@ -60,7 +60,7 @@ func Test_CascadingPersistPreRunEHackWithLoggingLevels(t *testing.T) {
 
 				// none logging level is a special case
 				if k == "none" {
-					if log.StandardLogger().Out != ioutil.Discard {
+					if log.StandardLogger().Out != io.Discard {
 						t.Errorf("Running %v we were expecting logging to be discared but it is not ", tt.cmd)
 					}
 				} else {

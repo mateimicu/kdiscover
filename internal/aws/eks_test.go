@@ -5,7 +5,7 @@ import (
 	"encoding/base64"
 	"flag"
 	"fmt"
-	"io/ioutil"
+	"io"
 	"testing"
 
 	"github.com/aws/aws-sdk-go/service/eks"
@@ -238,7 +238,7 @@ var cases = []testCase{
 
 func TestGetClustersNoFailure(t *testing.T) {
 	t.Parallel()
-	log.SetOutput(ioutil.Discard)
+	log.SetOutput(io.Discard)
 	for _, tt := range cases {
 		client := tt.Client
 		describeErrorCount := 0
@@ -298,7 +298,7 @@ func TestGetClustersNoFailure(t *testing.T) {
 
 func TestGetClustersListFailure(t *testing.T) {
 	t.Parallel()
-	log.SetOutput(ioutil.Discard)
+	log.SetOutput(io.Discard)
 
 	tts := []testCase{
 		{

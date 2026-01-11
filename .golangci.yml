@@ -6,7 +6,7 @@ linters:
     - dogsled
     - dupl
     - errcheck
-    - exportloopref
+    # exportloopref removed - Go 1.22+ has proper loop variable semantics
     - funlen
     - gochecknoinits
     - goconst
@@ -14,7 +14,6 @@ linters:
     - gocyclo
     - gofmt
     - goimports
-    - gomnd
     - goprintffuncname
     - gosec
     - gosimple
@@ -34,33 +33,10 @@ linters:
     - unparam
     - unused
     - whitespace
-issues:
-  exclude:
-    - Using the variable on range scope .* in function literal
-  # depguard:
-  #   rules:
-  #     Main:
-  #       files:
-  #         - "$all"
-  #       # List of allowed packages.
-  #       allow:
-  #         - $gostd
-  #         - github.com/OpenPeeDeeP
-  #         - github.com/Masterminds/semver
-  #         - github.com/aws
-  #         - github.com/jedib0t
-  #         - github.com/mateimicu
-  #         - github.com/spf13
-  #         - github.com/stretchr - k8s.io
-  #       # Packages that are not allowed where the value is a suggestion.
-  #       deny:
 
+issues:
+  # Removed "Using the variable on range scope" exclude - fixed in Go 1.22+
 
 linters-settings:
   errcheck:
     exclude: .errcheck-exclude
-  gomnd:
-    settings:
-      mnd:
-        # TODO(mmicu): exclude this when golangci-lint will include v2.0.0 of go-mnd
-        excludes: argument

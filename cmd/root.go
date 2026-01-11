@@ -3,7 +3,7 @@ package cmd
 
 import (
 	"fmt"
-	"io/ioutil"
+	"io"
 	"os"
 	"path/filepath"
 	"strings"
@@ -41,7 +41,7 @@ It will try to upgrade the kube-config for each cluster.`,
 
 		PersistentPreRunE: func(cmd *cobra.Command, args []string) error {
 			if logLevel == "none" {
-				log.SetOutput(ioutil.Discard)
+				log.SetOutput(io.Discard)
 				return nil
 			}
 
