@@ -8,9 +8,9 @@
 
 ## Executive Summary
 
-Five parallel reviews identified **22 unique findings** across reliability, security, code health, and documentation. After de-duplication (e.g., `io/ioutil` deprecation was flagged by all 5 reviewers), these consolidate into **16 actionable items** grouped into 4 priority tiers.
+Five parallel reviews identified **28 unique findings** across reliability, security, code health, and documentation. After de-duplication (e.g., `io/ioutil` deprecation was flagged by all 5 reviewers, backup file security flagged by 3), these consolidate into **19 actionable items** grouped into 4 priority tiers.
 
-The most impactful issues are: tests that make real AWS network calls (blocking CI reliability), insecure file permissions on kubeconfig backups containing credentials, and non-atomic file writes risking data corruption.
+The most impactful issues are: tests that make real AWS network calls (blocking CI reliability), a TOCTOU race condition with insecure file permissions on kubeconfig backups, CI/CD workflow security gaps (custom PAT, `pull_request_target`, missing permissions), and non-atomic file writes risking data corruption.
 
 ---
 
@@ -31,16 +31,22 @@ The most impactful issues are: tests that make real AWS network calls (blocking 
 
 ---
 
-### 2. Fix insecure backup file permissions
+### 2. Fix TOCTOU race and insecure backup file permissions
 
 **Source:** Security Review (Critical), Database Review (Medium)
-**Impact:** Kubeconfig backup files are created with 0644 (world-readable) instead of 0600. Kubeconfig files contain cluster credentials.
+**Impact:** Two compounding issues in `copyFs`:
+1. **TOCTOU race condition:** `os.Stat(dst)` at line 100 checks if the destination exists, then `os.Create(dst)` at line 105 creates it. Between the check and create, another process could create the file — the backup silently overwrites it.
+2. **Insecure permissions:** `os.Create(dst)` defaults to 0666 (masked to ~0644 by umask). Kubeconfig backup files containing cluster credentials become world-readable.
 **Effort:** Low
 
 **Affected code:**
-- `cmd/aws_update.go:105` — `os.Create(dst)` defaults to 0666 (masked to ~0644 by umask)
+- `cmd/aws_update.go:100-105` — stat-then-create race + insecure default permissions
 
-**Fix:** Replace `os.Create(dst)` with `os.OpenFile(dst, os.O_WRONLY|os.O_CREATE|os.O_EXCL, 0600)`. Alternatively, read the source file's permissions via `os.Stat()` and apply them to the destination.
+**Fix:** Replace both the `os.Stat` check (line 100-103) and `os.Create` (line 105) with a single atomic call:
+```go
+os.OpenFile(dst, os.O_WRONLY|os.O_CREATE|os.O_EXCL, 0600)
+```
+`O_EXCL` makes creation fail atomically if the file already exists, eliminating both the race and the permissions issue in one change.
 
 ---
 
@@ -58,7 +64,7 @@ The most impactful issues are: tests that make real AWS network calls (blocking 
 
 ---
 
-## P1 — High (Code Health)
+## P1 — High (Code Health & CI/CD Security)
 
 ### 4. Replace deprecated `io/ioutil` usage
 
@@ -79,7 +85,32 @@ The most impactful issues are: tests that make real AWS network calls (blocking 
 
 ---
 
-### 5. Stop logging Certificate Authority data
+### 5. Harden CI/CD workflow security
+
+**Source:** Security Review (High — expanded)
+**Impact:** Three workflow configuration issues that weaken the CI/CD security posture.
+**Effort:** Low-Medium
+
+**Findings:**
+
+**5a. Custom `GH_PAT` in release workflow (HIGH)**
+- `release.yaml:34` — `GITHUB_TOKEN: ${{ secrets.GH_PAT }}` uses a custom Personal Access Token instead of the default `GITHUB_TOKEN`.
+- PATs are long-lived, have broader scope than needed, and are harder to audit/rotate. If compromised, the attacker gets all permissions the PAT grants across all repos it can access.
+- **Fix:** Evaluate whether the default `GITHUB_TOKEN` (scoped to the repository, short-lived, auto-rotated) is sufficient for goreleaser and krew-release-bot. If the PAT is needed for cross-repo krew-index updates, document why and ensure it has minimal scopes.
+
+**5b. `pull_request_target` trigger in auto-merge workflow (HIGH)**
+- `auto-merge.yaml:2` — `on: pull_request_target` runs the workflow in the context of the base branch with write permissions.
+- Mitigated by `if: ${{ github.actor == 'dependabot[bot]' }}` — only runs for Dependabot PRs. However, `pull_request_target` is a known attack vector: if the workflow ever checks out PR code or adds steps that process PR content, it could be exploited.
+- **Fix:** Add an explicit comment documenting why `pull_request_target` is used and the security invariant (no checkout of PR code). Consider adding `environment:` protection or using `pull_request` trigger with a separate approval workflow.
+
+**5c. Missing explicit permissions in CI workflow (HIGH)**
+- `golang-ci.yaml` has no top-level `permissions:` block. It inherits the repository default, which may grant overly broad write access.
+- Contrast with `release.yaml` (has `permissions: contents: write`) and `auto-merge.yaml` (has explicit permissions).
+- **Fix:** Add `permissions: read-all` (or minimal `contents: read`) at the top level of `golang-ci.yaml`. This follows the principle of least privilege and matches GitHub's security hardening recommendations.
+
+---
+
+### 6. Stop logging Certificate Authority data
 
 **Source:** Security Review (Medium)
 **Impact:** CA data logged in error path. Low risk (only in error cases, logs typically local), but violates defense-in-depth.
@@ -92,7 +123,7 @@ The most impactful issues are: tests that make real AWS network calls (blocking 
 
 ---
 
-### 6. Improve error handling patterns
+### 7. Improve error handling patterns
 
 **Source:** Architecture Review (High)
 **Impact:** Errors silently swallowed in cluster listing. Users get incomplete results with no indication of failures.
@@ -108,7 +139,7 @@ The most impactful issues are: tests that make real AWS network calls (blocking 
 
 ---
 
-### 7. Add `context.Context` support to AWS calls
+### 8. Add `context.Context` support to AWS calls
 
 **Source:** Architecture Review (High)
 **Impact:** No way to cancel long-running region scans. No timeout for AWS API calls. Users must kill the process.
@@ -125,7 +156,7 @@ The most impactful issues are: tests that make real AWS network calls (blocking 
 
 ## P2 — Medium (Quality)
 
-### 8. Limit concurrency for region queries
+### 9. Limit concurrency for region queries
 
 **Source:** Architecture Review (Medium)
 **Impact:** One goroutine per region (currently up to ~30 AWS regions). Not dangerous at current scale but poor practice. Could cause AWS throttling.
@@ -138,7 +169,7 @@ The most impactful issues are: tests that make real AWS network calls (blocking 
 
 ---
 
-### 9. Replace manual file copy with `io.Copy`
+### 10. Replace manual file copy with `io.Copy`
 
 **Source:** Database Review (Medium), Architecture Review (Low)
 **Impact:** `copyFs` manually manages a 1MB buffer. Dead code at lines 111-113 (unreachable `if err != nil` after successful `os.Create`).
@@ -151,7 +182,7 @@ The most impactful issues are: tests that make real AWS network calls (blocking 
 
 ---
 
-### 10. Fix backup filename generation
+### 11. Fix backup filename generation
 
 **Source:** Database Review (Low)
 **Impact:** Infinite `.bak.bak.bak...` chain if many backups exist. Could produce extremely long filenames.
@@ -164,7 +195,7 @@ The most impactful issues are: tests that make real AWS network calls (blocking 
 
 ---
 
-### 11. Add test coverage for `internal/cluster` package
+### 12. Add test coverage for `internal/cluster` package
 
 **Source:** Testing Review (Medium), Maintenance Review (Medium)
 **Impact:** Core domain model has 0% test coverage. `PrettyName` uses `html/template` (should be `text/template`) — untested.
@@ -178,7 +209,7 @@ The most impactful issues are: tests that make real AWS network calls (blocking 
 
 ---
 
-### 12. Update `.gitignore` with security-sensitive patterns
+### 13. Update `.gitignore` with security-sensitive patterns
 
 **Source:** Security Review (Medium)
 **Impact:** Risk of accidentally committing credential files.
@@ -188,29 +219,39 @@ The most impactful issues are: tests that make real AWS network calls (blocking 
 
 ---
 
+### 14. Triage Dependabot security alerts
+
+**Source:** Security Review (expanded)
+**Impact:** 5 open Dependabot alerts (1 high, 4 moderate) on the default branch. After Phase 2 dependency updates on `maintenance/dependency-updates`, these may already be resolved but the alerts remain open on `master`.
+**Effort:** Low
+
+**Fix:** After merging the dependency update PR to `master`, verify alerts auto-close. For any remaining alerts, check if the vulnerable dependency is actually reachable in the code path (transitive dependency from `go-pretty`, `go-version`, etc.). Dismiss confirmed false positives with documented justification.
+
+---
+
 ## P3 — Low (Documentation & Cleanup)
 
-### 13. Remove dead code and stale suppressions
+### 15. Remove dead code and stale suppressions
 
 **Source:** Database Review (Low), Testing Review (Low), Architecture Review (Low)
 **Effort:** Low
 
 **Items:**
-- `cmd/aws_update.go:111-113` — dead `if err != nil` block (see item 9)
+- `cmd/aws_update.go:111-113` — dead `if err != nil` block (see item 10)
 - `cmd/root_test.go:17` — duplicate `update` flag declaration (also in `main.go:10`, `internal/aws/eks_test.go:19`)
 - `.errcheck-exclude` — duplicate file at root; update for io/ioutil removal
 - Nolint directives on `main.go:9` referencing removed linters (`varcheck`, `deadcode`)
 
 ---
 
-### 14. Resolve stale TODO comments
+### 16. Resolve stale TODO comments
 
 **Source:** Architecture Review (Medium), Maintenance Review (Medium)
 **Effort:** Low
 
 **TODOs (4):**
 - `internal/aws/eks.go:27-29` — "test GetClusters function" / "use assert library" — addressed by item 1
-- `internal/aws/eks.go:81` — "handle errors better here" — addressed by item 6
+- `internal/aws/eks.go:81` — "handle errors better here" — addressed by item 7
 - `internal/aws/eks_test.go:41` — "implement DescribeCluster and ListClustersPages"
 - `internal/aws/eks_test.go:97` — "populate cluster data here"
 
@@ -218,7 +259,7 @@ The most impactful issues are: tests that make real AWS network calls (blocking 
 
 ---
 
-### 15. Add community and security documentation
+### 17. Add community and security documentation
 
 **Source:** Security Review (Medium), Maintenance Review (Medium)
 **Effort:** Low
@@ -230,7 +271,7 @@ The most impactful issues are: tests that make real AWS network calls (blocking 
 
 ---
 
-### 16. Repository hygiene
+### 18. Repository hygiene
 
 **Source:** Maintenance Review (Low)
 **Effort:** Low
@@ -244,6 +285,20 @@ The most impactful issues are: tests that make real AWS network calls (blocking 
 
 ---
 
+### 19. Add input validation for AWS region parameters
+
+**Source:** Security Review (Low — expanded)
+**Impact:** The `--aws-partitions` flag values are passed directly to `aws.GetRegions()` and then to `session.NewSession()` without validation. Invalid regions produce unhelpful errors from the AWS SDK. Low security risk (invalid regions just fail API calls), but degrades UX.
+**Effort:** Low
+
+**Affected code:**
+- `cmd/aws.go` — partition/region flag handling
+- `internal/aws/regions.go` — region resolution
+
+**Fix:** Validate that supplied partition names are in the known set before creating sessions. Return a clear error for unknown partitions.
+
+---
+
 ## Implementation Order
 
 The recommended implementation sequence groups related changes to minimize rework:
@@ -251,11 +306,11 @@ The recommended implementation sequence groups related changes to minimize rewor
 | Phase | Items | Rationale |
 |-------|-------|-----------|
 | A     | 1, 4  | Fix tests first (unblock CI), replace ioutil (mechanical) |
-| B     | 2, 9, 10 | File operations cluster (permissions, io.Copy, backup naming) |
-| C     | 3, 5  | Atomic writes and log sanitization (security hardening) |
-| D     | 6, 7, 8 | Error handling + context + concurrency (architectural, related changes) |
-| E     | 11, 12 | Test coverage and gitignore (quality gates) |
-| F     | 13, 14, 15, 16 | Cleanup and documentation (low-risk, independent) |
+| B     | 2, 10, 11 | File operations cluster (TOCTOU + permissions, io.Copy, backup naming) |
+| C     | 3, 5, 6, 13 | Security hardening (atomic writes, CI/CD workflows, log sanitization, gitignore) |
+| D     | 7, 8, 9 | Architectural (error handling, context, concurrency) |
+| E     | 12, 14 | Quality gates (test coverage, Dependabot triage) |
+| F     | 15-19 | Cleanup, documentation, and low-priority items |
 
 Each phase should be a separate PR for reviewability.
 
@@ -266,18 +321,21 @@ Each phase should be a separate PR for reviewability.
 | Finding | DB | Arch | Sec | Maint | Test |
 |---------|:--:|:----:|:---:|:-----:|:----:|
 | 1. Test network calls | | | | | X |
-| 2. Backup permissions | X | | X | | |
+| 2. TOCTOU + backup permissions | X | | X | | |
 | 3. Atomic writes | X | | | | |
 | 4. io/ioutil deprecation | X | X | | X | X |
-| 5. CA data in logs | | | X | | |
-| 6. Error handling | | X | | | |
-| 7. context.Context | | X | | | |
-| 8. Unbounded concurrency | | X | | | |
-| 9. Manual file copy | X | X | | | |
-| 10. Backup naming | X | | | | |
-| 11. Cluster test coverage | | | | X | X |
-| 12. .gitignore patterns | | | X | | |
-| 13. Dead code | X | X | | | X |
-| 14. Stale TODOs | | X | | X | |
-| 15. Community docs | | | X | X | |
-| 16. Repo hygiene | | | | X | |
+| 5. CI/CD workflow security | | | X | | |
+| 6. CA data in logs | | | X | | |
+| 7. Error handling | | X | | | |
+| 8. context.Context | | X | | | |
+| 9. Unbounded concurrency | | X | | | |
+| 10. Manual file copy | X | X | | | |
+| 11. Backup naming | X | | | | |
+| 12. Cluster test coverage | | | | X | X |
+| 13. .gitignore patterns | | | X | | |
+| 14. Dependabot alert triage | | | X | | |
+| 15. Dead code | X | X | | | X |
+| 16. Stale TODOs | | X | | X | |
+| 17. Community docs | | | X | X | |
+| 18. Repo hygiene | | | | X | |
+| 19. Region input validation | | | X | | |
