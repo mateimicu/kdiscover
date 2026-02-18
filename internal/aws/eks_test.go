@@ -3,20 +3,16 @@ package aws
 
 import (
 	"encoding/base64"
-	"flag"
 	"fmt"
-	"io/ioutil"
+	"io"
 	"testing"
 
-	"github.com/aws/aws-sdk-go/service/eks"
+	"github.com/aws/aws-sdk-go/service/eks"            //nolint:staticcheck // aws-sdk-go v2 migration tracked separately
 	"github.com/aws/aws-sdk-go/service/eks/eksiface"
 	"github.com/mateimicu/kdiscover/internal/cluster"
 	log "github.com/sirupsen/logrus"
 	"github.com/stretchr/testify/assert"
 )
-
-//nolint:unused, varcheck, deadcode
-var update = flag.Bool("update", false, "update .golden files")
 
 type mockEKSClient struct {
 	eksiface.EKSAPI
@@ -238,7 +234,7 @@ var cases = []testCase{
 
 func TestGetClustersNoFailure(t *testing.T) {
 	t.Parallel()
-	log.SetOutput(ioutil.Discard)
+	log.SetOutput(io.Discard)
 	for _, tt := range cases {
 		client := tt.Client
 		describeErrorCount := 0
@@ -298,7 +294,7 @@ func TestGetClustersNoFailure(t *testing.T) {
 
 func TestGetClustersListFailure(t *testing.T) {
 	t.Parallel()
-	log.SetOutput(ioutil.Discard)
+	log.SetOutput(io.Discard)
 
 	tts := []testCase{
 		{

@@ -79,7 +79,7 @@ func newListCommand() *cobra.Command {
 	listCommand := &cobra.Command{
 		Use:   "list",
 		Short: "List all EKS Clusters",
-		RunE: func(cmd *cobra.Command, args []string) error {
+		RunE: func(cmd *cobra.Command, _ []string) error {
 			remoteEKSClusters := aws.GetEKSClusters(awsRegions)
 			log.Info(remoteEKSClusters)
 			k, err := kubeconfig.LoadKubeconfig(kubeconfigPath)

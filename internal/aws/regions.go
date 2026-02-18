@@ -1,7 +1,7 @@
 package aws
 
 import (
-	"github.com/aws/aws-sdk-go/aws/endpoints"
+	"github.com/aws/aws-sdk-go/aws/endpoints" //nolint:staticcheck // aws-sdk-go v2 migration tracked separately
 )
 
 func contains(key string, list []string) bool {

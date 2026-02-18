@@ -3,7 +3,7 @@ package cmd
 
 import (
 	"fmt"
-	"io/ioutil"
+	"io"
 	"os"
 	"path/filepath"
 	"strings"
@@ -39,9 +39,9 @@ func NewRootCommand(version, commit, date, commandPrefix string) *cobra.Command 
 all regions on an AWS account and try to find all EKS clsuters.
 It will try to upgrade the kube-config for each cluster.`,
 
-		PersistentPreRunE: func(cmd *cobra.Command, args []string) error {
+		PersistentPreRunE: func(_ *cobra.Command, _ []string) error {
 			if logLevel == "none" {
-				log.SetOutput(ioutil.Discard)
+				log.SetOutput(io.Discard)
 				return nil
 			}
 
@@ -53,8 +53,8 @@ It will try to upgrade the kube-config for each cluster.`,
 			return fmt.Errorf("can't find logging level %v", logLevel)
 		},
 
-		RunE: func(cmd *cobra.Command, args []string) error {
-			cmd.HelpFunc()(cmd, args)
+		RunE: func(cmd *cobra.Command, _ []string) error {
+			cmd.HelpFunc()(cmd, nil)
 			return nil
 		},
 	}

@@ -37,7 +37,7 @@ func newUpdateCommand() *cobra.Command {
 	updateCommand := &cobra.Command{
 		Use:   "update",
 		Short: "Update all EKS Clusters",
-		RunE: func(cmd *cobra.Command, args []string) error {
+		RunE: func(cmd *cobra.Command, _ []string) error {
 			cmd.Println(cmd.Short)
 
 			remoteEKSClusters := aws.GetEKSClusters(awsRegions)
@@ -108,25 +108,7 @@ func copyFs(src, dst string) error {
 	}
 	defer destination.Close()
 
-	if err != nil {
-		return err
-	}
-
-	//nolint: gomnd
-	buf := make([]byte, 1000000)
-	for {
-		n, err := source.Read(buf)
-		if err != nil && err != io.EOF {
-			return err
-		}
-		if n == 0 {
-			break
-		}
-
-		if _, err := destination.Write(buf[:n]); err != nil {
-			return err
-		}
-	}
+	_, err = io.Copy(destination, source)
 	return nil
 }
 

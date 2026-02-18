@@ -38,7 +38,6 @@ linters:
 linters-settings:
   errcheck:
     exclude-functions:
-      - io/ioutil.ReadFile
       - io.Copy(*bytes.Buffer)
       - io.Copy(os.Stdout)
       - (*net/http.Client).Do
