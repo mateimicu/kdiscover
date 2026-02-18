@@ -1,14 +1,14 @@
 module github.com/mateimicu/kdiscover
 
-go 1.17
+go 1.21
 
 require (
 	github.com/Masterminds/semver v1.5.0
 	github.com/aws/aws-sdk-go v1.50.13
 	github.com/jedib0t/go-pretty v4.3.0+incompatible
-	github.com/sirupsen/logrus v1.9.3
+	github.com/sirupsen/logrus v1.9.4
 	github.com/spf13/cobra v1.8.0
-	github.com/stretchr/testify v1.8.4
+	github.com/stretchr/testify v1.10.0
 	go.hein.dev/go-version v0.1.0
 	k8s.io/client-go v0.29.1
 )
