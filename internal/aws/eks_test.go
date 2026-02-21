@@ -7,7 +7,7 @@ import (
 	"io"
 	"testing"
 
-	"github.com/aws/aws-sdk-go/service/eks"            //nolint:staticcheck // aws-sdk-go v2 migration tracked separately
+	"github.com/aws/aws-sdk-go/service/eks" //nolint:staticcheck // aws-sdk-go v2 migration tracked separately
 	"github.com/aws/aws-sdk-go/service/eks/eksiface"
 	"github.com/mateimicu/kdiscover/internal/cluster"
 	log "github.com/sirupsen/logrus"
@@ -348,11 +348,4 @@ func TestGetClustersListFailure(t *testing.T) {
 			assert.Equal(t, 0, len(clusters))
 		})
 	}
-}
-
-func min(x, y int) int {
-	if x > y {
-		return y
-	}
-	return x
 }

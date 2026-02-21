@@ -109,7 +109,7 @@ func copyFs(src, dst string) error {
 	defer destination.Close()
 
 	_, err = io.Copy(destination, source)
-	return nil
+	return err
 }
 
 func generateBackupName(origin string) (string, error) {
