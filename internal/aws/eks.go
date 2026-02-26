@@ -6,10 +6,10 @@ import (
 	"errors"
 	"fmt"
 
-	"github.com/aws/aws-sdk-go/aws"
-	"github.com/aws/aws-sdk-go/aws/awserr"
-	"github.com/aws/aws-sdk-go/aws/session"
-	"github.com/aws/aws-sdk-go/service/eks"
+	"github.com/aws/aws-sdk-go/aws"         //nolint:staticcheck // aws-sdk-go v2 migration tracked separately
+	"github.com/aws/aws-sdk-go/aws/awserr"  //nolint:staticcheck // aws-sdk-go v2 migration tracked separately
+	"github.com/aws/aws-sdk-go/aws/session" //nolint:staticcheck // aws-sdk-go v2 migration tracked separately
+	"github.com/aws/aws-sdk-go/service/eks" //nolint:staticcheck // aws-sdk-go v2 migration tracked separately
 	"github.com/aws/aws-sdk-go/service/eks/eksiface"
 	"github.com/mateimicu/kdiscover/internal/cluster"
 	log "github.com/sirupsen/logrus"

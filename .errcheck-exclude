@@ -1,4 +1,3 @@
-io/ioutil.ReadFile
 io.Copy(*bytes.Buffer)
 io.Copy(os.Stdout)
 (*net/http.Client).Do

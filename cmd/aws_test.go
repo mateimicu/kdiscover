@@ -3,7 +3,7 @@ package cmd
 
 import (
 	"fmt"
-	"io/ioutil"
+	"io"
 	"os"
 	"path/filepath"
 	"strings"
@@ -38,7 +38,7 @@ func TestQueryAllRegions(t *testing.T) {
 	for _, tt := range cases {
 		testname := fmt.Sprintf("command %v", tt.Partitions)
 		t.Run(testname, func(t *testing.T) {
-			dir, err := ioutil.TempDir("", ".kube")
+			dir, err := os.MkdirTemp("", ".kube")
 			if err != nil {
 				t.Error(err.Error())
 			}
@@ -49,7 +49,7 @@ func TestQueryAllRegions(t *testing.T) {
 			buf := new(strings.Builder)
 			cmd.SetOut(buf)
 			cmd.SetErr(buf)
-			log.SetOutput(ioutil.Discard)
+			log.SetOutput(io.Discard)
 			defer func() { log.SetOutput(os.Stdout) }()
 			hook := test.NewGlobal()
 			defer hook.Reset()

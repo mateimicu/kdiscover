@@ -2,14 +2,13 @@
 package cmd
 
 import (
-	"io/ioutil"
 	"os"
 	"path/filepath"
 	"testing"
 )
 
 func Test_generateBackupNameNoConflict(t *testing.T) {
-	dir, err := ioutil.TempDir("", ".kube")
+	dir, err := os.MkdirTemp("", ".kube")
 	if err != nil {
 		t.Error(err.Error())
 	}
@@ -18,7 +17,7 @@ func Test_generateBackupNameNoConflict(t *testing.T) {
 	kubeconfigPath := filepath.Join(dir, "kubeconfig")
 	backupKubeconfigPath := filepath.Join(dir, "kubeconfig.bak")
 
-	if err := ioutil.WriteFile(kubeconfigPath, []byte("..."), 0600); err != nil {
+	if err := os.WriteFile(kubeconfigPath, []byte("..."), 0600); err != nil {
 		t.Error(err.Error())
 	}
 
@@ -37,7 +36,7 @@ func Test_generateBackupNameNoConflict(t *testing.T) {
 }
 
 func Test_fileExistsDir(t *testing.T) {
-	dir, err := ioutil.TempDir("", "dir")
+	dir, err := os.MkdirTemp("", "dir")
 	if err != nil {
 		t.Error(err.Error())
 	}
@@ -48,7 +47,7 @@ func Test_fileExistsDir(t *testing.T) {
 }
 
 func Test_fileExistsMissing(t *testing.T) {
-	dir, err := ioutil.TempDir("", "dir")
+	dir, err := os.MkdirTemp("", "dir")
 	if err != nil {
 		t.Error(err.Error())
 	}
@@ -60,7 +59,7 @@ func Test_fileExistsMissing(t *testing.T) {
 }
 
 func Test_fileExistsFile(t *testing.T) {
-	dir, err := ioutil.TempDir("", "dir")
+	dir, err := os.MkdirTemp("", "dir")
 	if err != nil {
 		t.Error(err.Error())
 	}
@@ -68,7 +67,7 @@ func Test_fileExistsFile(t *testing.T) {
 
 	path := filepath.Join(dir, "kubeconfig")
 
-	if err := ioutil.WriteFile(path, []byte("...\n"), 0600); err != nil {
+	if err := os.WriteFile(path, []byte("...\n"), 0600); err != nil {
 		t.Error(err.Error())
 	}
 
