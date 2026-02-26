@@ -35,7 +35,7 @@ release:
   prerelease: auto
 
 changelog:
-  skip: false
+  disable: false
 
 brews:
   - repository:
@@ -44,7 +44,7 @@ brews:
     commit_author:
       name: goreleaserbot
       email: goreleaser@mateimicu.com
-    folder: Formula
+    directory: Formula
     description: "Utility for listing and exporting config for K8s Clusters"
     test: |
       system "#{bin}/kdiscover --version"
